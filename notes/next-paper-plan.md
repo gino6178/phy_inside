@@ -513,3 +513,13 @@ Open decision for the author: the review argues the load cell was the cheapest 3
 mechanics and that E4 (same-face relighting) does not test the 3D field.
 Review score: overall 2/5, confidence 4. Minimum set to change it: radial-only + annotated mIoU on six
 objects; a real-individual 3D reference; symmetric competitors actually run.
+
+## 15. De-circularised evaluation (2026-09-05): the method is GMM+MRF; NMFS is supplementary
+
+Per-family agreement on each family's confident cells (orange): classifier 0.935/0.910 (ceiling),
+radial-only 0.826/0.764, GMM+MRF 0.931/0.913 (W_T 0.5..3.0 insensitive), NMFS 0.922/0.916.
+Held-out family (train on transverse pseudo-labels, evaluate on longitudinal confident cells):
+NMFS 0.831, pseudo source 0.829, MRF 0.911. 97% of cells are confident. NMFS copies its source; MRF
+generalises. Decision: main method = GMM + anisotropic MRF (+ optional inclusion head for membranes);
+NMFS goes to supplementary. Radial-only loses 10-15 points per family: the field carries more than r.
+`material/eval_field.py` is the evaluator.

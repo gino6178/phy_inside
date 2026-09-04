@@ -52,8 +52,8 @@ a{color:var(--blue)}
 
 <h2>Abstract</h2>
 <div class="abs">
-<p>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是<b>一顆橘子對所有現有方法而言都是單一物質</b>。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（3+3 張，對六張 held-out 照片的分群一致性 0.93（兩個 GMM 的 Hungarian 一致性，不是對標注的準確度）），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性解剖先驗與夾雜物 head 學出每個 cell 的物質。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
-<p style="color:var(--muted);font-size:15px">Generated 3D assets stop at the surface. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid: the material inventory is learned on real cut photographs, back-projected as pseudo-labels, and a neural material field on the cylindrical lattice is trained with no 3D labels. Every voxel of the asset carries its substance, so a planar cut is a topological event and every fragment keeps its material.</p>
+<p>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是<b>一顆橘子對所有現有方法而言都是單一物質</b>。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（3+3 張，對六張 held-out 照片的分群一致性 0.93（兩個 GMM 的 Hungarian 一致性，不是對標注的準確度）），經虛擬切片反投影成偽標籤；在圓柱格上以各向異性 MRF（沿半徑鬆、沿切向緊）把兩族的後驗融合成每個 cell 的物質，<b>不需要任何 3D 標籤</b>；一個神經版本（NMFS）在去循環評估下沒有勝過它，列為補充。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
+<p style="color:var(--muted);font-size:15px">Generated 3D assets stop at the surface. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid: the material inventory is learned on real cut photographs, back-projected as pseudo-labels, and fused on the cylindrical lattice by an anisotropic MRF with no 3D labels; a neural variant (NMFS) did not beat it under de-circularised evaluation and is reported as supplementary. Every voxel of the asset carries its substance, so a planar cut is a topological event and every fragment keeps its material.</p>
 </div>
 
 <h2>Architecture <small>照片 → 2D 材質 → 3D 神經材質場 → 帶材質的 voxel 資產 → 物理與光學</small></h2>
@@ -70,11 +70,11 @@ a{color:var(--blue)}
 <rect class="b" x="830" y="40" width="150" height="100"/><text class="t" x="840" y="62">反投影</text><text class="s" x="840" y="80">每 cell 各取最近的</text><text class="s" x="840" y="96">一橫一縱切片</text><text class="s" x="840" y="112">→ F_t, F_l, P(k|c)</text>
 <path class="a" d="M190,90 L215,90"/><path class="a" d="M415,90 L440,90"/><path class="a" d="M620,90 L645,90"/><path class="a" d="M805,90 L830,90"/>
 
-<rect class="g" x="8" y="172" width="984" height="170"/><text class="h" x="20" y="192">STAGE 2 · NMFS 神經材質場（no 3D labels）</text>
+<rect class="g" x="8" y="172" width="984" height="170"/><text class="h" x="20" y="192">STAGE 2 · 3D 材質場：GMM+MRF（主）／NMFS（補充），no 3D labels</text>
 <rect class="b" x="20" y="205" width="150" height="120"/><text class="t" x="30" y="227">輸入</text><text class="s" x="30" y="246">PE(r, φ, z)</text><text class="s" x="30" y="262">F_t（橫切特徵）</text><text class="s" x="30" y="278">F_l（縱切特徵）</text><text class="s" x="30" y="294">局部上下文</text><text class="s" x="30" y="310">（薄的週期 3D conv）</text>
 <rect class="b" x="195" y="205" width="230" height="120"/><text class="t" x="205" y="227">M_θ</text><text class="s" x="205" y="246">head_t(PE, F_t) → P_t</text><text class="s" x="205" y="262">head_l(PE, F_l) → P_l</text><text class="s" x="205" y="278">fuse(h_t, h_l) → P, P_incl</text><text class="s" x="205" y="300">每 cell MLP，265 s / 6.3M cell</text>
 <rect class="b" x="450" y="205" width="260" height="120"/><text class="t" x="460" y="227">損失（全部無 3D 標籤）</text><text class="s" x="460" y="246">L_pseudo：高信心偽標籤的 CE</text><text class="s" x="460" y="262">L_cross：KL(P_t ‖ P_l) 對稱</text><text class="s" x="460" y="278">L_geom：沿 r L1（便宜），沿 φ, z L2（貴）</text><text class="s" x="460" y="294">L_incl：focal，薄纖維結構</text><text class="s" x="460" y="312">（渲染、力曲線不是訓練損失）</text>
-<rect class="b" x="735" y="205" width="245" height="120"/><text class="t" x="745" y="227">材質場 (k, t)</text><text class="s" x="745" y="246">k：皮 / 果肉 / 纖維（離散）</text><text class="s" x="745" y="262">t：類內連續調變（PC1）</text><text class="s" x="745" y="278">夾雜物 head 保住囊瓣膜</text><text class="l" x="745" y="300">非信心 cell 一致 0.67→0.84</text><text class="l" x="745" y="316">膜保留 0.078→0.123</text>
+<rect class="b" x="735" y="205" width="245" height="120"/><text class="t" x="745" y="227">材質場 (k, t)</text><text class="s" x="745" y="246">k：皮 / 果肉 / 纖維（離散）</text><text class="s" x="745" y="262">t：類內連續調變（PC1）</text><text class="s" x="745" y="278">夾雜物 head 保住囊瓣膜</text><text class="l" x="745" y="300">radial-only 0.83/0.76 → MRF 0.93/0.91</text><text class="l" x="745" y="316">NMFS held-out 族 0.83 &lt; MRF 0.91</text>
 <path class="a" d="M170,265 L195,265"/><path class="a" d="M425,265 L450,265"/><path class="a" d="M710,265 L735,265"/>
 <path class="a" d="M905,140 L905,172"/><path class="a" d="M530,140 L530,172"/>
 
@@ -95,18 +95,18 @@ a{color:var(--blue)}
 <div class="fig"><img src="assets/asset_clusters.png" alt="asset consistency"><p class="cap">資產自帶一致性：45° 斜切從未被任何一族監督，卻與橫切、縱切一致，所以不需要 2D→3D 的機率乘積提升。</p></div>
 </div>
 
-<h2>II. NMFS 神經材質場 <small>Stage 2 · 沒有一張 3D 標籤</small></h2>
-<div class="fig"><img src="assets/nmfs.png" alt="NMFS"><p class="cap">由上而下：照片分類器的 argmax、GMM+MRF 基線、NMFS 最終標籤、夾雜物 head 的機率。橫切的放射狀囊瓣膜在 MRF 被抹掉，NMFS 由夾雜物 head 補回。</p></div>
+<h2>II. 3D 材質場：GMM + MRF 是方法，NMFS 是補充 <small>Stage 2 · 沒有一張 3D 標籤 · 去循環評估後的結論</small></h2>
+<div class="fig"><img src="assets/nmfs.png" alt="NMFS"><p class="cap">由上而下：照片分類器的 argmax、GMM+MRF、NMFS、NMFS 夾雜物 head 的機率。</p></div>
+<p>獨立評審指出原本的三個 NMFS 指標都是循環的（參照物是同一個分類器）。改用<b>去循環評估</b>：每個 cell 有兩個獨立的 2D 判斷（橫切族 P<sub>t</sub>、縱切族 P<sub>l</sub>），一個 3D 場對<b>各族高信心 cell</b> 的一致率分開報告；再加一個只用橫切偽標籤訓練、對縱切分類器評估的 held-out-family 測試。</p>
 <table>
-<tr><th>指標（橘子）</th><th>分類器</th><th>GMM + MRF</th><th>NMFS</th></tr>
-<tr><td>在非信心 cell 上與 held-out 驗證過的分類器一致</td><td class="n">—</td><td class="n">0.67</td><td class="n"><span class="ok">0.84</span></td></tr>
-<tr><td>核心區外的纖維組織（囊瓣膜的保留）</td><td class="n">0.122</td><td class="n">0.078</td><td class="n"><span class="ok">0.123</span></td></tr>
-<tr><td>兩族不一致（診斷，共用 head 所以被建構為一致）</td><td class="n">0.187</td><td class="n">0.188</td><td class="n">0.001</td></tr>
-<tr><td>斜切變化率 / 橫切變化率（無接縫）</td><td class="n">—</td><td class="n">0.033 / 0.043</td><td class="n">0.052 / 0.069</td></tr>
-<tr><td>訓練時間</td><td class="n">—</td><td class="n">秒級</td><td class="n">265 s</td></tr>
+<tr><th>場（橘子）</th><th>對橫切族一致</th><th>對縱切族一致</th><th>非信心 cell 對分類器</th><th>核心區外纖維（膜）</th><th>斜切 / 橫切變化率</th></tr>
+<tr><td>分類器 argmax（定義族的參照，近上限）</td><td class="n">0.935</td><td class="n">0.910</td><td class="n">1.000</td><td class="n">0.122</td><td class="n">0.064 / 0.078</td></tr>
+<tr><td><b>radial-only k(r)</b>（只看半徑）</td><td class="n">0.826</td><td class="n">0.764</td><td class="n">0.421</td><td class="n">0.000</td><td class="n">0.013 / 0.017</td></tr>
+<tr><td><b>GMM + MRF</b>（W_T 0.5 / 1.5 / 3.0 幾乎不變）</td><td class="n"><span class="ok">0.931</span></td><td class="n">0.913</td><td class="n">0.685</td><td class="n">0.079</td><td class="n">0.035 / 0.044</td></tr>
+<tr><td>NMFS（兩族偽標籤）</td><td class="n">0.922</td><td class="n"><span class="ok">0.916</span></td><td class="n">0.839</td><td class="n">0.123</td><td class="n">0.052 / 0.069</td></tr>
+<tr><td>NMFS，只用橫切偽標籤 → 對縱切族</td><td class="n">—</td><td class="n">0.831（MRF 同條件 <b>0.911</b>，偽標籤來源 0.829）</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
 </table>
-<p class="cap">偽標籤只用了信心高的 cell，其餘 cell 從未進過交叉熵；NMFS 在它們上與分類器的一致由 0.67 升到 0.84，是「學到了東西」的證據。0.001 要打折讀：兩個 head 共用類別層又被 KL 拉在一起。</p>
-
+<p class="cap">三個結論。(1) <b>場不只是半徑</b>：radial-only 在兩族上各少 10 到 15 個百分點，材質場帶有半徑以外的結構（膜、中柱的形狀）。(2) <b>GMM+MRF 對兩族的一致與分類器持平，且對平滑強度不敏感</b>。(3) <b>NMFS 沒有贏</b>：在 held-out-family 測試裡它幾乎等於複製偽標籤來源（0.831 對 0.829），MRF 反而泛化到另一族（0.911）；97% 的 cell 是高信心，NMFS 只在 3% 上插值。因此主文的方法是 GMM+MRF，NMFS 降為補充材料的一個嘗試，它保留膜（0.123）的那一點來自夾雜物 head，可以單獨接在 MRF 後面。</p>
 <h2>III. 材質寫進每個 voxel <small>切割時碎片帶著材質</small></h2>
 <div class="fig"><img src="assets/stage2_field.png" alt="field"><p class="cap">材質場的三個切面：後驗 argmax → MRF 與 shell 規則 → 果肉內的連續調變 t（近中柱低、近皮高）。</p></div>
 <table>
@@ -140,8 +140,8 @@ a{color:var(--blue)}
 <tr><th>發現</th><th>證實？</th><th>處置</th></tr>
 <tr><td>顏色規則 baseline 沒有套 shell 規則，NMFS 的皮峰有 73% 來自 cell_level 規則而非學習</td><td class="ok">證實（程式碼）</td><td>加入 colour+shell 與 radial-only 兩個 baseline，重算力曲線（上方分頁）</td></tr>
 <tr><td>K 選擇碼裡有一個 K=4 的特例，與「一個程式不調參」矛盾；K 從 3 起跳測不到清單=1</td><td class="ok">證實（程式碼）</td><td>改為規則：最佳轉移，0.02 內取較大 K；KS 從 2 起</td></tr>
-<tr><td>NMFS 的三個指標循環：非信心 cell 的參照是同一個分類器；膜保留與訓練目標同一量；兩 head 共用輸出層</td><td class="ok">證實（程式碼）</td><td>新增去循環實驗：只用一族的偽標籤訓練、對另一族的分類器評估（進行中）；0.001 與膜保留改為診斷</td></tr>
-<tr><td>半徑先驗進了四次，「學到解剖」可能只是「學到 r」</td><td class="ok">證實（radial-only 曲線接近 NMFS）</td><td>如實寫在力曲線說明；差異要在非徑向結構與 3D 外部參照上證明</td></tr>
+<tr><td>NMFS 的三個指標循環：非信心 cell 的參照是同一個分類器；膜保留與訓練目標同一量；兩 head 共用輸出層</td><td class="ok">證實（程式碼）</td><td>去循環實驗做完：NMFS 0.831 對 MRF 0.911（held-out 族）；NMFS 降為補充，主文用 GMM+MRF</td></tr>
+<tr><td>半徑先驗進了四次，「學到解剖」可能只是「學到 r」</td><td class="ok">證實（radial-only 曲線接近 NMFS）</td><td>力曲線上確實接近；但去循環評估顯示 radial-only 對兩族各少 10–15 點，場帶有半徑以外的結構</td></tr>
 <tr><td>0.93 是兩個 GMM 的一致性不是準確度；「所有數字為實際量測」不成立</td><td class="ok">證實</td><td>全站措辭已改</td></tr>
 <tr><td>E4（同一切面重光照）不測 3D 場；放棄荷重元換成不測 3D 的指標是策略錯誤；建議 serial-slice：一顆真橘子切 8–12 片逐片拍照對齊，就是一個真實個體的 3D 標籤堆疊，零硬體</td><td>判斷</td><td>採納 serial-slice 進計畫（E2c）；荷重元是否重新納入由作者決定</td></tr>
 <tr><td>n=1 物件、無 3D 真值、對手未真跑、消融未做</td><td class="ok">證實</td><td>與作者自己的缺口清單一致，見計畫 §14</td></tr>
