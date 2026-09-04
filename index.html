@@ -140,6 +140,10 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <figure><img src="assets/montage_cut3.gif" alt="side-by-side cutting"><figcaption>由左到右：NMFS 異質場、NMFS 材質視圖、同質（等於 part 級方法對單 part 橘子的輸出）、GaussianFluent 顏色規則。下方各欄：橫切的切削力曲線。這裡是 3DFusion 版本的資產（1,162,387 個 cell），不是 FruitNinja 的。</figcaption></figure>
 <div class="callout"><b>怎麼讀這張圖。</b>看得出來的差異是定性的：碎片的挺立、切面的輪廓、落地後攤開的程度。<b>不要從動畫讀數字</b>：六塊碎片翻滾是混沌的，同樣物理跑兩次（第一、二欄）的碎片姿態就不同。定量的部分是下方的力曲線，它不依賴模擬。</div>
 
+<h3>6.5 一刀之後從高處落下（FLOOR_DROP=1.3）</h3>
+<figure><img src="assets/montage_fall.gif" alt="fall montage"><figcaption>3DFusion 資產切成兩半後真實落下。由左到右：NMFS、NMFS 材質視圖、同質。材質視圖顯示切面上的皮（黃）、纖維中柱（藍）、果肉（橘）跟著半球一起落地。</figcaption></figure>
+<p>誠實的讀法：兩個半球落地後仍會翻滾，同樣物理跑兩次的 squash 差到 0.19，所以這裡也只有定性的差異；而且這個 lattice 的 shell 佔 41% 的 cell，皮與內部沿重力的伸展幾乎相同（內部 / 皮 ≈ 1.00），這個指標在此無法分辨。要拿到可用的落地數字，需要多種子平均、或不切開的整顆落地（第 6.3 節，在 FruitNinja lattice 上：NMFS 第一次落地皮 0.973 對同質 0.951）。</p>
+
 <h3>6.3 整顆不切的落地</h3>
 <div class="grid2">
 <figure><img src="assets/drop_nmfs.gif" alt="drop NMFS"><figcaption>NMFS 異質場</figcaption></figure>
