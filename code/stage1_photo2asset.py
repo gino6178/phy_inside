@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); sys.path.insert(
 from feats import *; from planes import Vol
 from gmm_gpu import GaussianMixtureGPU as GaussianMixture; from scipy.optimize import linear_sum_assignment
 PHOTO, STATE, GRID, OUT = sys.argv[1:5]; os.makedirs(OUT, exist_ok=True); t0 = time.time(); rng = np.random.default_rng(0)
-KS = [3, 4, 5, 6]; STEP_T = 2; STEP_L = 4
+KS = [2, 3, 4, 5, 6]; STEP_T = 2; STEP_L = 4
 
 def load_photos(split, fam):
     out = []
@@ -46,7 +46,7 @@ for K in KS:
     r_, c_ = linear_sum_assignment(-C); agree = C[r_, c_].sum() / len(la)
     res[K] = dict(agree=float(agree), ll_hld=float(gs.score(Xh)), ll_spl=float(gs.score(Xs)))
     print(f'K={K}  spl->hld Hungarian agreement {agree:.3f}   loglik spl {gs.score(Xs):.2f} hld {gs.score(Xh):.2f}', flush=True)
-    if best is None or agree > best[1] + 0.02 or (K == 4 and agree > best[1] - 0.02): best = (K, agree, gs)   # prefer the largest K that stays stable
+    if best is None or agree > best[1] + 0.02 or (agree > best[1] - 0.02 and K > best[0]): best = (K, agree, gs)   # rule, no object-specific constant: best transfer; within 0.02 of it, prefer the larger K
 K, agree, gmm = best; print(f'chosen K={K} (agreement {agree:.3f})', flush=True)
 # order classes by mean radius
 lab_s = gmm.predict(Xs); order = np.argsort([Xs[lab_s == k, -1].mean() if (lab_s == k).any() else 9 for k in range(K)]); remap = np.zeros(K, int); remap[order] = np.arange(K)

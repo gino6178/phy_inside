@@ -14,7 +14,10 @@ CONF = 0.8; R_CORE = 0.25; FIBRE, FLESH, PEEL = 0, 1, 2
 d = np.load(CELLS); idx = torch.from_numpy(d['idx'].astype(np.int64)).to(dv); NR, NPHI, NZ = [int(x) for x in d['shape']]; M = len(idx)
 Ft = torch.from_numpy(d['Ft']).to(dv).float(); Fl = torch.from_numpy(d['Fl']).to(dv).float(); Fa = torch.from_numpy(d['F']).to(dv).float()
 mu, sd = Fa.mean(0), Fa.std(0) + 1e-6; Ft = (Ft - mu) / sd; Fl = (Fl - mu) / sd; Fa = (Fa - mu) / sd; NF = Ft.shape[1]
-p = np.load(PHOTO); P0 = torch.from_numpy(p['P'].astype(np.float32)).to(dv); K = int(p['K']); lab0 = P0.argmax(1); conf = P0.max(1).values > CONF
+p = np.load(PHOTO); K = int(p['K']); PSEUDO_FAM = os.environ.get('PSEUDO_FAM', 'both')     # 'trans' | 'long' | 'both'
+_src = {'both': 'P', 'trans': 'Pt', 'long': 'Pl'}[PSEUDO_FAM]
+P0 = torch.from_numpy(p[_src].astype(np.float32)).to(dv); lab0 = P0.argmax(1); conf = P0.max(1).values > CONF
+print(f'pseudo-labels from: {PSEUDO_FAM} ({_src})', flush=True)
 rn = (idx[:, 0].float() + 0.5) / NR; zn = (idx[:, 2].float() + 0.5) / NZ * 2 - 1; phn = idx[:, 1].float() / NPHI * 2 * math.pi
 incl_t = ((lab0 == FIBRE) & (rn > R_CORE)).float()                       # thin fibrous tissue outside the core: membranes / albedo
 print(f'{M:,} cells, K={K}, confident pseudo-labels {float(conf.float().mean()):.3f}, inclusion targets {float(incl_t.mean()):.3f}', flush=True)
@@ -107,7 +110,13 @@ def seam(l):
         ch = ((g[:, 1:] != g[:, :-1]) & v[:, 1:] & v[:, :-1]).float().sum() + ((g[1:] != g[:-1]) & v[1:] & v[:-1]).float().sum(); out[name] = float(ch / v.float().sum().clamp_min(1))
     return out
 nc = ~conf
-metrics = dict(K=K, steps=STEPS, w_r=W_R, w_t=W_T,
+_other = {'trans': 'Pl', 'long': 'Pt', 'both': None}[PSEUDO_FAM]
+if _other is not None:
+    Po = torch.from_numpy(p[_other].astype(np.float32)).to(dv); oc = Po.max(1).values > CONF; ol = Po.argmax(1)
+    heldout_family = dict(family=_other, agree_nmfs=float((lab_final[oc] == ol[oc]).float().mean()), agree_mrf=float((mrf[oc] == ol[oc]).float().mean()), agree_pseudo_source=float((lab0[oc] == ol[oc]).float().mean()), n=int(oc.sum()))
+    print('HELD-OUT FAMILY', json.dumps(heldout_family), flush=True)
+else: heldout_family = None
+metrics = dict(K=K, steps=STEPS, w_r=W_R, w_t=W_T, pseudo_fam=PSEUDO_FAM, heldout_family=heldout_family, confident_fraction=float(conf.float().mean()),
     cross_disagree=dict(raw_classifier=float((Pt0 != Pl0).float().mean()), nmfs=float((lt != ll).float().mean())),
     agree_with_classifier_on_nonconfident=dict(mrf=float((mrf[nc] == lab0[nc]).float().mean()), nmfs=float((lab_final[nc] == lab0[nc]).float().mean())),
     fibre_outside_core=dict(classifier=fib_out(lab0), mrf=fib_out(mrf), nmfs_main=fib_out(lab), nmfs_with_inclusions=fib_out(lab_final)),

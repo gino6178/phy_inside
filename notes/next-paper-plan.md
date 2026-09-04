@@ -64,9 +64,10 @@ the watermelon, and its manual per-colour assignment is the natural strongest ba
 
 Checked 2026-09-04. Three facts decide how the comparison must be built.
 
-1. **No code is released.** The GitHub repo is the project page only. So the baseline is a faithful
-   re-implementation of their material rule on *our* geometry and *our* solver. That is the
-   cleaner experiment anyway: the only thing that differs is the material field.
+1. **Code and assets are released** (github.com/HB-pencil-zero/GaussianFluent: CD-MPM solver, interior filling,
+   gs_simulation; Hugging Face: 22 pretrained 3DGS assets, 32 configs incl. watermelon, jelly, trained_gs_fruitninja).
+   The baseline can be run with their solver and rule on their assets, and their rule re-implemented on our
+   lattice so only the material field differs. Do both.
 2. **They have no cutting experiment.** Slicing appears in a list of capabilities; there is no
    knife model, no cutting section and no cutting metric. Their evaluation is CLIP score and a
    user study. So we are not beating them on their benchmark -- **we introduce the evaluation
@@ -491,3 +492,24 @@ are chaotic, Warp's atomic adds are nondeterministic, and one torch subsample wa
 SEED env). The earlier 6,438 vs 16,113 (FruitNinja lattice) is inside this noise. Any behavioural
 metric on cut pieces needs several seeds with mean +/- std, or the non-tumbling intact-drop
 scenario. The cut-force profile (a deterministic integral over the field) is unaffected.
+
+## 14. Independent review (2026-09-05) and what it changed
+
+Confirmed from code: (1) colour-rule baseline lacked the shell rule -> added `colour rule + shell` and
+`radial-only k(r) + shell` to the cut-force comparison. Result: radial-only reproduces most of NMFS's
+profile (entry spike 0.91 vs 0.98, plateau 0.62 vs 0.70) -- on the orange the material is close to a
+function of r, and the force figure cannot separate a learned field from radial layering. (2) K
+selection had a K=4 special case -> replaced by a rule (best transfer, larger K within 0.02), KS from 2.
+(3) NMFS metrics are circular (reference = the same classifier; inclusion metric = training target;
+shared head for L_cross) -> de-circularised test added: PSEUDO_FAM=trans|long trains on one family's
+pseudo-labels and evaluates against the other family's confident classifier; 0.001 and membrane
+retention become diagnostics. (4) Wording: "measured" -> "executed", 0.93 is clustering agreement.
+
+Adopted from the review: **E2c serial-slice ground truth** -- cut one real orange into 8-12 transverse
+slices, photograph each, align, classify -> a 3D label stack of one real individual; report 3D mIoU and
+membrane count/spacing against it. Zero hardware, one hour. This is the cheapest external 3D reference
+and replaces the single oblique photograph as the main structural test.
+Open decision for the author: the review argues the load cell was the cheapest 3D validation of the
+mechanics and that E4 (same-face relighting) does not test the 3D field.
+Review score: overall 2/5, confidence 4. Minimum set to change it: radial-only + annotated mIoU on six
+objects; a real-individual 3D reference; symmetric competitors actually run.

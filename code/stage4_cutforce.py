@@ -36,6 +36,16 @@ km = KMeans(3, n_init=4, random_state=0).fit(lab[np.random.default_rng(0).choice
 rv = rad[occ]; order = np.argsort([float(rv[cl == k].mean()) for k in range(3)]); remap = torch.zeros(3, dtype=torch.long, device=dv); remap[torch.from_numpy(order).to(dv)] = torch.arange(3, device=dv)
 Lcol = torch.full_like(fields['NMFS'], -1); Lcol[occ] = remap[cl]; fields['colour rule (GaussianFluent)'] = Lcol
 print('colour-rule class fractions (by radius order: inner, mid, outer):', (torch.bincount(remap[cl], minlength=3).float() / occ.sum()).cpu().numpy().round(3), flush=True)
+# (b) the same colour rule PLUS our shell rule -- the symmetric baseline (the reviewer's W2)
+Lcs = Lcol.clone(); Lcs[shell] = PEEL; fields['colour rule + shell'] = Lcs
+# (c) radial-only: k as a function of r alone, thresholds from the photo classifier's radial class histogram (no features at all)
+d = np.load(NMFS); ridx = d['idx'][:, 0].astype(int); labs = d['labels'].astype(int); NRc = int(d['shape'][0])
+hist = np.zeros((NRc, 3))
+for r_, l_ in zip(ridx, labs): hist[r_, l_] += 1
+kr = torch.from_numpy(hist.argmax(1)).to(dv)                       # most frequent class at each radius
+ri_all = (rad / E * NRc - 0.5).round().long().clamp(0, NRc - 1)
+Lr = torch.full_like(fields['NMFS'], -1); Lr[occ] = kr[ri_all[occ]]; Lr[shell] = PEEL; fields['radial-only k(r) + shell'] = Lr
+print('radial-only class fractions:', (torch.bincount(Lr[occ], minlength=3).float() / occ.sum()).cpu().numpy().round(3), flush=True)
 
 def tau_of(L):
     T = torch.zeros_like(L, dtype=torch.float32)
@@ -52,13 +62,13 @@ def profile(L, cut):
 cuts = {'transverse cut (plane z=0, blade advancing along x)': ('trans', 0), 'longitudinal cut (plane through the axis)': ('long', 0)}
 res = {}
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-fig, ax = plt.subplots(2, 2, figsize=(12, 7.5), gridspec_kw={'width_ratios': [1.6, 1]})
+fig, ax = plt.subplots(2, 2, figsize=(13, 8), gridspec_kw={'width_ratios': [1.7, 1]})
 cmap = np.array([[255, 255, 255], [60, 140, 230], [230, 90, 40], [250, 220, 120]], np.uint8)
 for i, (title, cut) in enumerate(cuts.items()):
     res[title] = {}
     for name, L in fields.items():
         f = profile(L, cut); s = np.nonzero(f)[0]; f = f[s.min():s.max() + 1]; f = f / f.max(); res[title][name] = f.tolist()
-        ax[i, 0].plot(np.linspace(0, 1, len(f)), f, label=name, lw=2 if name == 'NMFS' else 1.3, alpha=0.95 if name == 'NMFS' else 0.8)
+        ax[i, 0].plot(np.linspace(0, 1, len(f)), f, label=name, lw=2.2 if name == 'NMFS' else 1.3, alpha=0.95 if name == 'NMFS' else 0.8, ls='--' if 'radial' in name else '-')
     ax[i, 0].set_title(title, fontsize=10); ax[i, 0].set_xlabel('blade advance s (normalised)'); ax[i, 0].set_ylabel('F(s) / max, relative tau'); ax[i, 0].legend(fontsize=8); ax[i, 0].grid(alpha=0.3)
     AX = vol.AXD; rest = [d for d in range(3) if d != AX]; i0 = int(round(vol.c))
     Lp = fields['NMFS'].select(AX, i0) if cut[0] == 'trans' else fields['NMFS'].select(rest[1], i0)

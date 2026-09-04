@@ -38,7 +38,7 @@ a{color:var(--blue)}
 <h1>phy_inside: Heterogeneous Material Fields for Cuttable Generated Solids</h1>
 <p class="tag">從幾張切面照片，到皮、果肉、纖維各有各的物理的可切割數位孿生資產</p>
 <p class="authors">Gino (gino6178) · 2026</p>
-<p class="aff">Fruit3D Fusion → phy_inside · 所有數字為實際量測，未做的部分明寫</p>
+<p class="aff">Fruit3D Fusion → phy_inside · 所有數字來自實際執行；模擬輸出不是量測，E、ν、ρ、τ 為假設值；未做的部分明寫</p>
 <div class="btns">
 <a class="btn" href="analysis.html">完整分析（Analysis）</a>
 <a class="btn" href="https://github.com/gino6178/phy_inside">Code</a>
@@ -52,7 +52,7 @@ a{color:var(--blue)}
 
 <h2>Abstract</h2>
 <div class="abs">
-<p>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是<b>一顆橘子對所有現有方法而言都是單一物質</b>。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（3+3 張，對六顆沒看過的橘子轉移一致性 0.93），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性解剖先驗與夾雜物 head 學出每個 cell 的物質。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
+<p>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是<b>一顆橘子對所有現有方法而言都是單一物質</b>。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（3+3 張，對六張 held-out 照片的分群一致性 0.93（兩個 GMM 的 Hungarian 一致性，不是對標注的準確度）），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性解剖先驗與夾雜物 head 學出每個 cell 的物質。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
 <p style="color:var(--muted);font-size:15px">Generated 3D assets stop at the surface. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid: the material inventory is learned on real cut photographs, back-projected as pseudo-labels, and a neural material field on the cylindrical lattice is trained with no 3D labels. Every voxel of the asset carries its substance, so a planar cut is a topological event and every fragment keeps its material.</p>
 </div>
 
@@ -121,7 +121,7 @@ a{color:var(--blue)}
 <div class="tabs"><button class="on" data-t="cut3">三刀六塊</button><button data-t="fall">一刀後從高處落下</button><button data-t="force">切削力曲線</button><button data-t="drop">整顆落地</button></div>
 <div id="tab-cut3" class="fig"><img src="assets/montage_cut3.gif" alt="cut3"><p class="cap">NMFS · NMFS 材質視圖 · 同質 · 顏色規則。對手的共同缺點是只有一種材質：切到哪裡力曲線都是同一條弧，切下去沒有軟硬之分。材質視圖顯示皮、果肉、纖維各自跟著碎片走。</p></div>
 <div id="tab-fall" class="fig" hidden><img src="assets/montage_fall.gif" alt="fall"><p class="cap">切成兩半後從 1.3 的高度落下：NMFS · 材質視圖 · 同質。</p></div>
-<div id="tab-force" class="fig" hidden><img src="assets/cutforce_profiles.png" alt="force"><p class="cap">四種材質場的切削力曲線形狀（相對 τ：皮 1.0、纖維 0.5、果肉 0.15）。NMFS 與 MRF 有皮的進出雙峰（0.98 / 0.85）與低的果肉平台；同質是弦長的弧；<b>顏色規則在橘子上找不到皮</b>，外皮與果肉同色，曲線幾乎就是同質的弧。這是對場的確定性積分，不依賴模擬。</p></div>
+<div id="tab-force" class="fig" hidden><img src="assets/cutforce_profiles.png" alt="force"><p class="cap">六種材質場的切削力曲線形狀（相對 τ：皮 1.0、纖維 0.5、果肉 0.15），對場的確定性積分。橫切的進出峰 / 果肉平台：NMFS 0.98 / 0.70，GMM+MRF 0.85 / 0.59，<b>radial-only k(r)+shell 0.91 / 0.62</b>，colour+shell 0.74 / 0.94，colour-only 0.63 / 0.92，同質 0.60 / 0.93。兩個誠實的讀法：(1) 顏色規則加上同一套 shell 規則後拿回一部分皮峰（0.63→0.74），但仍遠低於 NMFS，因為皮的白絡帶不是 shell；(2) <b>一個只看半徑的分層規則就重現了 NMFS 大部分的曲線形狀</b>，橘子的材質幾乎是半徑的函數，這張圖分不出「學到的材質場」與「半徑分層」。差別要在半徑不夠用的地方（囊瓣膜、西瓜籽、麵包的肉桂捲）和 3D 外部參照上證明。</p></div>
 <div id="tab-drop" class="fig" hidden><img src="assets/drop_compare.png" alt="drop"><p class="cap">整顆不切的落地（FruitNinja lattice）：NMFS 第一次落地皮的最小伸展比 0.973 對同質 0.951，內部 0.979 對 0.958；硬皮讓整顆變形少一半、彈得更快，內部被皮屏蔽。</p></div>
 <div class="note"><b>怎麼讀動畫。</b>差異是定性的。六塊碎片翻滾是混沌的：同樣物理跑兩次（第一、二欄）的碎片姿態就不同，接觸數差四倍。所以動畫不抽數字；定量的是切削力曲線（確定性）與不翻滾的落地。之前報過的碎片接觸數已撤回。</div>
 
@@ -134,6 +134,19 @@ a{color:var(--blue)}
 <tr><td>光學估計</td><td>RGB↔X、SuperMat、IntrinsicAnything</td><td>逐像素，無每類約束</td><td>同一面漫射→閃光的重渲染</td><td>濕高光被烘進 albedo</td></tr>
 </table>
 <p class="cap">可守的宣稱只有兩層：part 內的異質性（現有方法沒有一個讓 part 內部變化），以及監督來自內部觀測。不宣稱逐 voxel 材質是新的（VoMP、Pixie 都輸出逐 voxel）、不宣稱絕對模數、不宣稱輸入未標定。細節與每篇的粒度查證見<a href="analysis.html#pos">完整分析</a>。</p>
+
+<h2>Independent review <small>2026-09-05，一個沒有參與專案的 CVPR 審稿 agent 讀完頁面、分析、計畫與程式碼後的結論；已證實的部分照單全收</small></h2>
+<table>
+<tr><th>發現</th><th>證實？</th><th>處置</th></tr>
+<tr><td>顏色規則 baseline 沒有套 shell 規則，NMFS 的皮峰有 73% 來自 cell_level 規則而非學習</td><td class="ok">證實（程式碼）</td><td>加入 colour+shell 與 radial-only 兩個 baseline，重算力曲線（上方分頁）</td></tr>
+<tr><td>K 選擇碼裡有一個 K=4 的特例，與「一個程式不調參」矛盾；K 從 3 起跳測不到清單=1</td><td class="ok">證實（程式碼）</td><td>改為規則：最佳轉移，0.02 內取較大 K；KS 從 2 起</td></tr>
+<tr><td>NMFS 的三個指標循環：非信心 cell 的參照是同一個分類器；膜保留與訓練目標同一量；兩 head 共用輸出層</td><td class="ok">證實（程式碼）</td><td>新增去循環實驗：只用一族的偽標籤訓練、對另一族的分類器評估（進行中）；0.001 與膜保留改為診斷</td></tr>
+<tr><td>半徑先驗進了四次，「學到解剖」可能只是「學到 r」</td><td class="ok">證實（radial-only 曲線接近 NMFS）</td><td>如實寫在力曲線說明；差異要在非徑向結構與 3D 外部參照上證明</td></tr>
+<tr><td>0.93 是兩個 GMM 的一致性不是準確度；「所有數字為實際量測」不成立</td><td class="ok">證實</td><td>全站措辭已改</td></tr>
+<tr><td>E4（同一切面重光照）不測 3D 場；放棄荷重元換成不測 3D 的指標是策略錯誤；建議 serial-slice：一顆真橘子切 8–12 片逐片拍照對齊，就是一個真實個體的 3D 標籤堆疊，零硬體</td><td>判斷</td><td>採納 serial-slice 進計畫（E2c）；荷重元是否重新納入由作者決定</td></tr>
+<tr><td>n=1 物件、無 3D 真值、對手未真跑、消融未做</td><td class="ok">證實</td><td>與作者自己的缺口清單一致，見計畫 §14</td></tr>
+<tr><td>評分：Overall 2 / 5（weak reject），Confidence 4；最能改變評分的三件事：radial-only + 人工標注 mIoU（六物件）、一個真實個體的 3D 真值、對稱的對手</td><td>—</td><td>—</td></tr>
+</table>
 
 <h2>Limitations</h2>
 <ul>
