@@ -10,8 +10,13 @@ CELLS, FEATS, STATE, GRID, OUT = sys.argv[1:6]; os.makedirs(OUT, exist_ok=True);
 W_R, W_T, ITERS = float(os.environ.get('W_R', 0.3)), float(os.environ.get('W_T', 1.5)), int(os.environ.get('ITERS', 12))
 d = np.load(CELLS); P = torch.from_numpy(d['P'].astype(np.float32)).to(dv); Pt = d['Pt'].astype(np.float32); Pl = d['Pl'].astype(np.float32)
 idx = torch.from_numpy(d['idx'].astype(np.int64)).to(dv); NR, NPHI, NZ = [int(x) for x in d['shape']]; K = int(d['K']); M = len(idx)
-PEEL, FLESH, FIBRE = 2, 1, 0                                     # classes ordered by mean radius on the photographs: 0 fibrous core, 1 flesh, 2 peel
 lab0 = P.argmax(1)
+# class roles from the data, not from K: the outermost class (largest mean radius) is the peel, the most
+# populous remaining class is the flesh, anything else is fibrous/inclusion tissue (K=2: flesh + peel only)
+_r = (idx[:, 0].float() + 0.5) / NR; _mean_r = torch.stack([_r[lab0 == k].mean() if (lab0 == k).any() else torch.tensor(-1., device=dv) for k in range(K)])
+PEEL = int(_mean_r.argmax()); _rest = [k for k in range(K) if k != PEEL]; _cnt = torch.bincount(lab0, minlength=K)
+FLESH = int(max(_rest, key=lambda k: int(_cnt[k]))); FIBRE = [k for k in _rest if k != FLESH][0] if len(_rest) > 1 else FLESH
+print(f'class roles by mean radius: peel={PEEL} flesh={FLESH} fibre={FIBRE}', flush=True)
 
 # ---- dense posterior grid (K, NR, NPHI, NZ); non-core cells carry no evidence (uniform)
 Q0 = torch.full((K, NR, NPHI, NZ), 1.0 / K, device=dv); Q0[:, idx[:, 0], idx[:, 1], idx[:, 2]] = P.T.clamp(1e-4, 1)

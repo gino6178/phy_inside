@@ -534,3 +534,15 @@ So a part-level predictor gives the orange one material, at a magnitude two to t
 fruit. Env: `vomp` (torch 2.4.0 cu121, kaolin 0.18, xformers 0.0.27.post2, dgr + vox2seq built with
 conda gcc 12 as host compiler, ATTN_BACKEND=SPARSE_ATTN_BACKEND=xformers). Script
 `phy_inside/code/run_vomp_orange.py`. PhysX-Anything and Pixie: not run (stated).
+
+## 17. Seven objects through one program (2026-09-05)
+
+`Fruit3D_Fusion/run_all_objects.sh` (GPU 1, ~4.5 h): grid -> 30k longitudinal prior -> 4k polar prior ->
+cylinder -> classifier -> MRF -> force curves. K by transfer / fractions / cross-family disagreement:
+orange 3 / 0.933 / 0.187; watermelon 2 / 0.976 / 0.156 (tie with the colour rule, seeds are inclusions
+not a class); apple 2 / 0.948 / 0.208 (core vs flesh, thin skin not a class -> no peel spike); bread 2 /
+0.915 / 0.221 (crust/crumb, non-axisymmetric works); cake 6 / 0.592 / 0.437 (FAILED: 4 photos, no held-out,
+K rule degenerates); doughnut 2 / 0.985 / 0.532 (1 photo, no held-out, number not evidence); pomegranate
+2 / 0.916 / 0.264 (arils vs membranes). Fix made on the way: class roles (peel/flesh/fibre) are now
+derived from mean radius and class size for any K (stage2_field.py, stage4_cutforce.py); the earlier
+hard-coded 0/1/2 broke K=2 objects. Figure `runs/objects_fields.png`, table `runs/objects_summary.json`.

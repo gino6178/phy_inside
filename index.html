@@ -126,6 +126,20 @@ a{color:var(--blue)}
 <div id="tab-drop" class="fig" hidden><img src="assets/drop_compare.png" alt="drop"><p class="cap">整顆不切的落地（FruitNinja lattice）：NMFS 第一次落地皮的最小伸展比 0.973 對同質 0.951，內部 0.979 對 0.958；硬皮讓整顆變形少一半、彈得更快，內部被皮屏蔽。</p></div>
 <div class="note"><b>怎麼讀動畫。</b>差異是定性的。六塊碎片翻滾是混沌的：同樣物理跑兩次（第一、二欄）的碎片姿態就不同，接觸數差四倍。所以動畫不抽數字；定量的是切削力曲線（確定性）與不翻滾的落地。之前報過的碎片接觸數已撤回。</div>
 
+<h2>VI. 七個物件，一個程式 <small>E1 / E8 · 沒有每物件的設定；K 由 held-out 轉移決定，類別角色由平均半徑決定</small></h2>
+<div class="fig"><img src="assets/objects_fields.png" alt="objects"><p class="cap">每個物件：3DFusion 資產的橫切、材質場的橫切、縱切、45° 斜切。斜切都沒有接縫。顏色是類別索引，不跨物件對應。</p></div>
+<table>
+<tr><th>物件</th><th>照片（訓練 / held-out）</th><th>K</th><th>轉移一致性</th><th>類別比例</th><th>跨族不一致</th><th>力曲線進出峰：MRF / 同質 / 顏色+shell / radial</th><th>讀法</th></tr>
+<tr><td>orange</td><td>3+3 / 3+3</td><td class="n">3</td><td class="n">0.933</td><td>皮 0.09、果肉 0.43、纖維 0.48</td><td class="n">0.187</td><td class="n">0.85 / 0.60 / 0.74 / 0.91</td><td>皮肉同色，顏色規則輸；場接近半徑分層</td></tr>
+<tr><td>watermelon</td><td>3+3 / 20+17</td><td class="n">2</td><td class="n">0.976</td><td>瓤 0.84、皮 0.16</td><td class="n">0.156</td><td class="n">1.00 / 0.61 / 1.00 / 0.94</td><td><b>與顏色規則平手</b>，如預告；籽被歸進「非瓤」類，成為徑向排列的小島（圖），但不是獨立的穩定類別（K=3 掉到 0.73）</td></tr>
+<tr><td>apple</td><td>3+3 / 0+6</td><td class="n">2</td><td class="n">0.948</td><td>果肉 0.53、核 0.47</td><td class="n">0.208</td><td class="n">0.63 / 0.66 / 0.97 / 0.45</td><td>分出的是核與果肉，薄皮沒有成為類別，所以沒有皮峰；顏色+shell 反而有峰（shell 規則給的）</td></tr>
+<tr><td>bread</td><td>3+0 / 2+0</td><td class="n">2</td><td class="n">0.915</td><td>crumb 0.84、crust 0.16</td><td class="n">0.221</td><td class="n">1.00 / 1.00 / 1.00 / 1.00</td><td>非軸對稱物件，圓柱格照樣可用；crust / crumb 分開；矩形截面讓所有場的曲線都在邊緣最高，此指標無鑑別力</td></tr>
+<tr><td>cake</td><td>3+0 / <b>0</b></td><td class="n">6</td><td class="n">0.592</td><td>零碎</td><td class="n">0.437</td><td class="n">0.99 / 0.91 / 0.98 / 0.98</td><td><b>失敗，如實報</b>：只有 4 張照片、沒有 held-out，轉移準則無法選 K，規則退化成取最大 K；場是碎的</td></tr>
+<tr><td>doughnut</td><td>0+1 / 0</td><td class="n">2</td><td class="n">0.985</td><td>crumb 0.83、crust 0.17</td><td class="n">0.532</td><td class="n">1.00 / 0.94 / 0.99 / 0.94</td><td>只有一張橫切照片，0.985 是對訓練照片算的，不算證據；環面的橫切是兩個圓，幾何正確</td></tr>
+<tr><td>pomegranate</td><td>3+3 / 2+0</td><td class="n">2</td><td class="n">0.916</td><td>籽粒 0.49、膜 0.51</td><td class="n">0.264</td><td class="n">0.45 / 0.61 / 0.90 / 0.53</td><td>分出的是籽粒與膜，薄皮沒有成為類別；沒有皮峰</td></tr>
+</table>
+<div class="note"><b>誠實的總結。</b>(1) 七個物件全部跑過同一個程式，四個（orange、watermelon、bread、pomegranate）有真的 held-out 且轉移在 0.92 以上；apple 只有橫切有 held-out；doughnut 與 cake 沒有 held-out，它們的數字不是證據，cake 明確失敗。(2) 資料支持的清單通常是 2 到 3 類，不是提案裡的 4 到 5 類；籽這種稀疏夾雜物要走夾雜物那條路，不是 K 的一員。(3) 「皮的進出雙峰」這個力曲線特徵只在皮夠厚、被分成一類的物件上出現（orange、watermelon）；apple 與 pomegranate 的皮太薄，沒有成為類別。(4) 顏色規則在 watermelon 平手、在 orange 輸，與預告一致。</div>
+
 <h2>V. 跟誰比、比什麼 <small>對手的程式碼全部確認可取得</small></h2>
 <table>
 <tr><th>軸</th><th>對手</th><th>它們的內部</th><th>指標</th><th>預期</th></tr>

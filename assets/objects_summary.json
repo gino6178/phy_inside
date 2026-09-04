@@ -1,0 +1,332 @@
+[
+ {
+  "object": "orange",
+  "K": 3,
+  "transfer": {
+   "3": 0.933,
+   "4": 0.61,
+   "5": 0.602,
+   "6": 0.693
+  },
+  "fractions": [
+   0.477,
+   0.43,
+   0.092
+  ],
+  "cross_disagree": 0.187,
+  "mrf_changed": 0.067,
+  "seam_obl": 0.028,
+  "seam_trans": 0.036,
+  "shell_cells": 1448452,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 0.98,
+    "plateau": 0.7
+   },
+   "GMM+MRF": {
+    "spike": 0.85,
+    "plateau": 0.59
+   },
+   "homogeneous": {
+    "spike": 0.6,
+    "plateau": 0.93
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 0.63,
+    "plateau": 0.92
+   },
+   "colour rule + shell": {
+    "spike": 0.74,
+    "plateau": 0.94
+   },
+   "radial-only k(r) + shell": {
+    "spike": 0.91,
+    "plateau": 0.62
+   },
+   "VoMP (ICLR 2026)": {
+    "spike": 0.61,
+    "plateau": 0.89
+   }
+  }
+ },
+ {
+  "object": "watermelon",
+  "K": 2,
+  "transfer": {
+   "2": 0.976,
+   "3": 0.73,
+   "4": 0.684,
+   "5": 0.484,
+   "6": 0.64
+  },
+  "fractions": [
+   0.839,
+   0.161
+  ],
+  "cross_disagree": 0.156,
+  "mrf_changed": 0.054,
+  "seam_obl": 0.026,
+  "seam_trans": 0.024,
+  "shell_cells": 1378088,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 1.0,
+    "plateau": 0.66
+   },
+   "GMM+MRF": {
+    "spike": 1.0,
+    "plateau": 0.66
+   },
+   "homogeneous": {
+    "spike": 0.61,
+    "plateau": 0.91
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 1.0,
+    "plateau": 0.57
+   },
+   "colour rule + shell": {
+    "spike": 1.0,
+    "plateau": 0.57
+   },
+   "radial-only k(r) + shell": {
+    "spike": 0.94,
+    "plateau": 0.58
+   }
+  }
+ },
+ {
+  "object": "apple",
+  "K": 2,
+  "transfer": {
+   "2": 0.948,
+   "3": 0.753,
+   "4": 0.527,
+   "5": 0.514,
+   "6": 0.721
+  },
+  "fractions": [
+   0.532,
+   0.468
+  ],
+  "cross_disagree": 0.208,
+  "mrf_changed": 0.08,
+  "seam_obl": 0.036,
+  "seam_trans": 0.036,
+  "shell_cells": 1308631,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 0.63,
+    "plateau": 0.91
+   },
+   "GMM+MRF": {
+    "spike": 0.63,
+    "plateau": 0.91
+   },
+   "homogeneous": {
+    "spike": 0.66,
+    "plateau": 0.91
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 0.84,
+    "plateau": 0.41
+   },
+   "colour rule + shell": {
+    "spike": 0.97,
+    "plateau": 0.52
+   },
+   "radial-only k(r) + shell": {
+    "spike": 0.45,
+    "plateau": 0.91
+   }
+  }
+ },
+ {
+  "object": "bread",
+  "K": 2,
+  "transfer": {
+   "2": 0.915,
+   "3": 0.816,
+   "4": 0.603,
+   "5": 0.584,
+   "6": 0.558
+  },
+  "fractions": [
+   0.841,
+   0.159
+  ],
+  "cross_disagree": 0.221,
+  "mrf_changed": 0.054,
+  "seam_obl": 0.023,
+  "seam_trans": 0.025,
+  "shell_cells": 934921,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 1.0,
+    "plateau": 0.4
+   },
+   "GMM+MRF": {
+    "spike": 1.0,
+    "plateau": 0.4
+   },
+   "homogeneous": {
+    "spike": 1.0,
+    "plateau": 0.98
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 1.0,
+    "plateau": 0.43
+   },
+   "colour rule + shell": {
+    "spike": 1.0,
+    "plateau": 0.43
+   },
+   "radial-only k(r) + shell": {
+    "spike": 1.0,
+    "plateau": 0.29
+   }
+  }
+ },
+ {
+  "object": "cake",
+  "K": 6,
+  "transfer": {
+   "2": 0.53,
+   "3": 0.537,
+   "4": 0.526,
+   "5": 0.539,
+   "6": 0.592
+  },
+  "fractions": [
+   0.027,
+   0.754,
+   0.0,
+   0.005,
+   0.083,
+   0.131
+  ],
+  "cross_disagree": 0.437,
+  "mrf_changed": 0.135,
+  "seam_obl": 0.072,
+  "seam_trans": 0.08,
+  "shell_cells": 1061007,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 0.99,
+    "plateau": 0.45
+   },
+   "GMM+MRF": {
+    "spike": 0.99,
+    "plateau": 0.45
+   },
+   "homogeneous": {
+    "spike": 0.91,
+    "plateau": 0.92
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 0.96,
+    "plateau": 0.57
+   },
+   "colour rule + shell": {
+    "spike": 0.98,
+    "plateau": 0.5
+   },
+   "radial-only k(r) + shell": {
+    "spike": 0.98,
+    "plateau": 0.28
+   }
+  }
+ },
+ {
+  "object": "doughnut",
+  "K": 2,
+  "transfer": {
+   "2": 0.985,
+   "3": 0.581,
+   "4": 0.738,
+   "5": 0.699,
+   "6": 0.637
+  },
+  "fractions": [
+   0.833,
+   0.167
+  ],
+  "cross_disagree": 0.532,
+  "mrf_changed": 0.13,
+  "seam_obl": 0.045,
+  "seam_trans": 0.052,
+  "shell_cells": 986734,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 1.0,
+    "plateau": 0.0
+   },
+   "GMM+MRF": {
+    "spike": 1.0,
+    "plateau": 0.0
+   },
+   "homogeneous": {
+    "spike": 0.94,
+    "plateau": 0.0
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 0.93,
+    "plateau": 0.0
+   },
+   "colour rule + shell": {
+    "spike": 0.99,
+    "plateau": 0.0
+   },
+   "radial-only k(r) + shell": {
+    "spike": 0.94,
+    "plateau": 0.0
+   }
+  }
+ },
+ {
+  "object": "pomegranate",
+  "K": 2,
+  "transfer": {
+   "2": 0.916,
+   "3": 0.867,
+   "4": 0.579,
+   "5": 0.552,
+   "6": 0.726
+  },
+  "fractions": [
+   0.492,
+   0.508
+  ],
+  "cross_disagree": 0.264,
+  "mrf_changed": 0.106,
+  "seam_obl": 0.055,
+  "seam_trans": 0.048,
+  "shell_cells": 1473028,
+  "cutforce_trans": {
+   "NMFS": {
+    "spike": 0.45,
+    "plateau": 0.83
+   },
+   "GMM+MRF": {
+    "spike": 0.45,
+    "plateau": 0.83
+   },
+   "homogeneous": {
+    "spike": 0.61,
+    "plateau": 0.94
+   },
+   "colour rule (GaussianFluent)": {
+    "spike": 0.47,
+    "plateau": 0.74
+   },
+   "colour rule + shell": {
+    "spike": 0.9,
+    "plateau": 0.82
+   },
+   "radial-only k(r) + shell": {
+    "spike": 0.53,
+    "plateau": 0.86
+   }
+  }
+ }
+]

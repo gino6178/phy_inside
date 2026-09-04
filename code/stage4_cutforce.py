@@ -8,7 +8,11 @@ re-implemented automatically (K-means on the voxel colour, classes ordered by ra
 import os, sys, math, json, numpy as np, torch
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'code')); from planes import Vol
 NMFS, MRF, STATE, GRID, OUT = sys.argv[1:6]; os.makedirs(OUT, exist_ok=True); dv = 'cuda'
-TAU = {0: 0.5, 1: 0.15, 2: 1.0}; FIBRE, FLESH, PEEL = 0, 1, 2
+# class roles by mean radius (same rule as stage2): peel = outermost, flesh = largest remaining, fibre = the rest
+_d = np.load(NMFS); _idx = _d['idx'].astype(int); _lab = _d['labels'].astype(int); _NR = int(_d['shape'][0]); _K = int(_lab.max()) + 1
+_mr = np.array([((_idx[_lab == k, 0] + 0.5) / _NR).mean() if (_lab == k).any() else -1 for k in range(_K)]); PEEL = int(_mr.argmax())
+_rest = [k for k in range(_K) if k != PEEL]; FLESH = max(_rest, key=lambda k: (_lab == k).sum()); FIBRE = [k for k in _rest if k != FLESH]
+TAU = {PEEL: 1.0, FLESH: 0.15}; TAU.update({k: 0.5 for k in FIBRE}); print('class roles:', dict(peel=PEEL, flesh=FLESH, fibre=FIBRE), 'tau', TAU, flush=True)
 vol = Vol(GRID, dv, res=256); E = vol.EXT; N = vol.N; X = torch.load(STATE, map_location=dv)['X'].float()
 occ = vol.OCC[0] > 0.5; shell = vol.SHELL[0] > 0.5
 rad = torch.sqrt(vol.u0 ** 2 + vol.u1 ** 2); ang = torch.atan2(vol.u1, vol.u0) % (2 * math.pi)
@@ -32,20 +36,20 @@ fields['homogeneous'] = torch.where(occ, torch.full_like(fields['NMFS'], FLESH),
 import cv2
 rgb = ((X.permute(1, 2, 3, 0)[occ] + 1) / 2).clamp(0, 1).cpu().numpy(); lab = cv2.cvtColor((rgb[None] * 255).astype(np.uint8), cv2.COLOR_RGB2LAB)[0].astype(np.float32)
 from sklearn.cluster import KMeans
-km = KMeans(3, n_init=4, random_state=0).fit(lab[np.random.default_rng(0).choice(len(lab), 200000, replace=False)]); cl = torch.from_numpy(km.predict(lab)).to(dv)
-rv = rad[occ]; order = np.argsort([float(rv[cl == k].mean()) for k in range(3)]); remap = torch.zeros(3, dtype=torch.long, device=dv); remap[torch.from_numpy(order).to(dv)] = torch.arange(3, device=dv)
+km = KMeans(max(_K, 2), n_init=4, random_state=0).fit(lab[np.random.default_rng(0).choice(len(lab), 200000, replace=False)]); cl = torch.from_numpy(km.predict(lab)).to(dv)
+rv = rad[occ]; order = np.argsort([float(rv[cl == k].mean()) for k in range(max(_K, 2))]); remap = torch.zeros(max(_K, 2), dtype=torch.long, device=dv); remap[torch.from_numpy(order).to(dv)] = torch.arange(max(_K, 2), device=dv)
 Lcol = torch.full_like(fields['NMFS'], -1); Lcol[occ] = remap[cl]; fields['colour rule (GaussianFluent)'] = Lcol
-print('colour-rule class fractions (by radius order: inner, mid, outer):', (torch.bincount(remap[cl], minlength=3).float() / occ.sum()).cpu().numpy().round(3), flush=True)
+print('colour-rule class fractions (by radius order: inner, mid, outer):', (torch.bincount(remap[cl], minlength=max(_K, 2)).float() / occ.sum()).cpu().numpy().round(3), flush=True)
 # (b) the same colour rule PLUS our shell rule -- the symmetric baseline (the reviewer's W2)
 Lcs = Lcol.clone(); Lcs[shell] = PEEL; fields['colour rule + shell'] = Lcs
 # (c) radial-only: k as a function of r alone, thresholds from the photo classifier's radial class histogram (no features at all)
 d = np.load(NMFS); ridx = d['idx'][:, 0].astype(int); labs = d['labels'].astype(int); NRc = int(d['shape'][0])
-hist = np.zeros((NRc, 3))
+hist = np.zeros((NRc, _K))
 for r_, l_ in zip(ridx, labs): hist[r_, l_] += 1
 kr = torch.from_numpy(hist.argmax(1)).to(dv)                       # most frequent class at each radius
 ri_all = (rad / E * NRc - 0.5).round().long().clamp(0, NRc - 1)
 Lr = torch.full_like(fields['NMFS'], -1); Lr[occ] = kr[ri_all[occ]]; Lr[shell] = PEEL; fields['radial-only k(r) + shell'] = Lr
-print('radial-only class fractions:', (torch.bincount(Lr[occ], minlength=3).float() / occ.sum()).cpu().numpy().round(3), flush=True)
+print('radial-only class fractions:', (torch.bincount(Lr[occ], minlength=_K).float() / occ.sum()).cpu().numpy().round(3), flush=True)
 
 def tau_of(L):
     T = torch.zeros_like(L, dtype=torch.float32)
