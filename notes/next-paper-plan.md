@@ -523,3 +523,14 @@ NMFS 0.831, pseudo source 0.829, MRF 0.911; the other direction NMFS 0.825, sour
 generalises. Decision: main method = GMM + anisotropic MRF (+ optional inclusion head for membranes);
 NMFS goes to supplementary. Radial-only loses 10-15 points per family: the field carries more than r.
 `material/eval_field.py` is the evaluator.
+
+## 16. VoMP run on the orange splat (2026-09-05) -- axis B measured
+
+VoMP (ICLR 2026, released weights) on `orange_x3d.ply`, 16 views (the all-view grid_sample needs
+~0.4 GB per view at 104k voxels; 150 views = 59 GB), 47 s: E median 2.97e8 Pa (2.07e8-5.58e8),
+CV 0.108, peel/flesh median ratio 1.17, our three classes explain 0.36 of its log-E variance.
+Its cut-force profile: spike 0.61 / plateau 0.89 / centre 1.04 == homogeneous (0.60 / 0.93 / 1.07).
+So a part-level predictor gives the orange one material, at a magnitude two to three orders above
+fruit. Env: `vomp` (torch 2.4.0 cu121, kaolin 0.18, xformers 0.0.27.post2, dgr + vox2seq built with
+conda gcc 12 as host compiler, ATTN_BACKEND=SPARSE_ATTN_BACKEND=xformers). Script
+`phy_inside/code/run_vomp_orange.py`. PhysX-Anything and Pixie: not run (stated).

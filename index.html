@@ -130,7 +130,7 @@ a{color:var(--blue)}
 <table>
 <tr><th>軸</th><th>對手</th><th>它們的內部</th><th>指標</th><th>預期</th></tr>
 <tr><td>內部有沒有材質</td><td>FruitNinja、GaussianFluent 填充、3DFusion</td><td>烘焙顏色</td><td>重光照 LPIPS</td><td>換光源即失效</td></tr>
-<tr><td>part 級物理預測</td><td>PhysX-Anything、PhysX-Omni、VoMP、Pixie、NeRF2Physics</td><td>單 part 橘子 = 一種材質</td><td>真實斜切的類別面積比 KL；力曲線形狀</td><td>皮佔比 0 或 100%，曲線是弧</td></tr>
+<tr><td>part 級物理預測</td><td>PhysX-Anything、PhysX-Omni、<b>VoMP（已跑）</b>、Pixie、NeRF2Physics</td><td>單 part 橘子 = 一種材質</td><td>力曲線形狀；E 的變異係數；皮/果肉 E 比</td><td>VoMP 實測：CV 0.11、皮/果肉 1.17、曲線 = 同質弧</td></tr>
 <tr><td>顏色指派</td><td>GaussianFluent 規則（自動化）+ 其 solver 跑其西瓜</td><td>皮肉同色時失效</td><td>同上</td><td>橘子找不到皮；西瓜平手（主動報告）</td></tr>
 <tr><td>光學估計</td><td>RGB↔X、SuperMat、IntrinsicAnything</td><td>逐像素，無每類約束</td><td>同一面漫射→閃光的重渲染</td><td>濕高光被烘進 albedo</td></tr>
 </table>
@@ -148,6 +148,18 @@ a{color:var(--blue)}
 <tr><td>n=1 物件、無 3D 真值、對手未真跑、消融未做</td><td class="ok">證實</td><td>與作者自己的缺口清單一致，見計畫 §14</td></tr>
 <tr><td>評分：Overall 2 / 5（weak reject），Confidence 4；最能改變評分的三件事：radial-only + 人工標注 mIoU（六物件）、一個真實個體的 3D 真值、對稱的對手</td><td>—</td><td>—</td></tr>
 </table>
+
+<h3>VoMP（ICLR 2026）真的跑在同一顆橘子的 splat 上</h3>
+<div class="fig"><img src="assets/cutforce_profiles_vomp.png" alt="VoMP force"><p class="cap">把 VoMP 公開權重跑在 3DFusion 橘子的 Gaussian splat 上（16 個渲染視角、DINOv2-L 特徵、Geometry Transformer + MatVAE；47 秒），τ 取它預測的 E 正規化後算同一條切削力曲線。VoMP 的曲線與同質場幾乎重合。</p></div>
+<table>
+<tr><th>VoMP 在橘子上的輸出（1,162,387 個 splat）</th><th>值</th><th>對照</th></tr>
+<tr><td>E 的中位數 / 範圍</td><td class="n">2.97e8 Pa（2.07e8 – 5.58e8）</td><td>水果果肉的實測是 1e5 – 1e7 Pa 量級；VoMP 的訓練集是工業與建築資產</td></tr>
+<tr><td>E 的變異係數（std / mean）</td><td class="n">0.108</td><td>幾乎均質</td></tr>
+<tr><td>皮 / 果肉 的 E 中位數比（按我們的類別分組）</td><td class="n">1.17</td><td>西瓜皮對果肉的實測約 3.7，橘子皮對果肉應更大；我們的假設 40</td></tr>
+<tr><td>它的 log E 變異被我們三類解釋的比例</td><td class="n">0.36</td><td>它那一點點變化的方向和我們的分層大致一致，幅度不到物理的十分之一</td></tr>
+<tr><td>切削力曲線：進出峰 / 平台 / 中心比</td><td class="n">0.61 / 0.89 / 1.04</td><td>同質 0.60 / 0.93 / 1.07；NMFS 0.98 / 0.70 / 1.27；MRF 0.85 / 0.59 / 1.21</td></tr>
+</table>
+<p class="cap">這是比較集 B 軸第一個<b>量到而非推論</b>的結果：對 VoMP 而言橘子是一種材質，皮與果肉差 17%，切到哪裡阻力都一樣。PhysX-Anything（單張照片生成它自己的幾何）與 Pixie（需要整套 NeRF/GS 加 CLIP 管線）<b>未跑</b>，不假裝。</p>
 
 <h2>Limitations</h2>
 <ul>
