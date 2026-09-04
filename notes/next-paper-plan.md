@@ -469,3 +469,17 @@ inside what is measured:
 
 Capture needed (one afternoon, phone only): per object one oblique cut photograph; per cut face
 one diffuse and one flash photograph. Stage 3 (Mitsuba fit) is ~2 weeks and was already planned.
+
+## 13. Comparison set (2026-09-04) -- all runnable, code verified
+
+| axis | competitors | code | protocol on our objects | metric | expected |
+|---|---|---|---|---|---|
+| A. interior has material? | FruitNinja, GaussianFluent interior fill, 3DFusion itself | yes | cut their assets, render | material channels present; relighting LPIPS (E4; baked RGB is them) | all baked colour, fail under a new light |
+| B. part-level physics predictors | PhysX-Anything (CVPR 2026, github ziangcao0312), PhysX-Omni, VoMP (ICLR 2026, nv-tlabs + HF weights), Pixie (vlongle), NeRF2Physics | all | feed the orange's exterior (multi-view renders / one photo), take their field, cut the same 45-degree plane | class-area KL to the real oblique photo (E2b); cut-force shape; contacts | one material for the whole orange -> peel 0% or 100%, large KL, arch-shaped force curve |
+| C. colour assignment | GaussianFluent rule (our automated re-implementation) + their own solver on their watermelon | yes, 22 assets | orange: ours; watermelon: theirs | same as B, report the watermelon tie | no peel on the orange, tie on the watermelon |
+| D. optical estimators | RGB<->X (SIGGRAPH 2024, zheng95z/rgbx), SuperMat (ICCV 2025), IntrinsicAnything | all | per-pixel SVBRDF on the cut photographs, no per-class constraint | same-face diffuse->flash relighting LPIPS/PSNR | wet highlights baked into albedo; per-class fit wins |
+| E. material segmentation | LAB K-means, raw DINOv2, SAM2 auto masks, `material_field.py` rule | local | on annotated held-out photographs | mIoU | — |
+
+Order: Pixie + VoMP (1 day each, weights available), PhysX-Anything (1 day), GaussianFluent code on
+its watermelon (1 week, env), RGB<->X + SuperMat on the six photographs (half a day; E4 needs the
+diffuse/flash captures). NeRF2Physics and PhysX-Omni as second representatives if time allows.

@@ -34,7 +34,7 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <p class="lead">生成的 3D 資產只有表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法把體積填成顏色而已，物理感知的管線則每個 part 一組均勻參數。對所有現有方法而言，<b>一顆橘子是一個 part、一種物質</b>。本專案把一個由少量切面照片合成的內部體積，分解成一個異質、可模擬的材質場：皮、果肉、纖維組織各有各的力學，切開的面可重光照，刀鋒切過時的阻力隨材質變化。</p>
 
 <ol class="toc">
-<li><a href="#abs">摘要</a></li><li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#asset">材質場寫進資產</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#evidence">驗證計畫（無荷重元）</a></li><li><a href="#code">程式與再現</a></li>
+<li><a href="#abs">摘要</a></li><li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#asset">材質場寫進資產</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#cmp">比較集</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#evidence">驗證計畫（無荷重元）</a></li><li><a href="#use">可用性</a></li><li><a href="#code">程式與再現</a></li>
 </ol>
 
 <h2 id="abs">摘要</h2>
@@ -168,6 +168,18 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 </table>
 <p>對它的宣稱不是能力，人手挑門檻也能做出異質場；宣稱是<b>自動、從切面照片來、一個程式不調參、而且在顏色與材質不一致處是對的</b>。</p>
 
+<h2 id="cmp">7b. 比較集：跟誰比、比什麼</h2>
+<p>四個軸，每個軸一組對手、一個指標、一個預期。對手的程式碼全部查證可取得，不是只重寫規則。</p>
+<table>
+<tr><th>軸</th><th>對手</th><th>在我們的物件上怎麼跑</th><th>指標</th><th>預期</th></tr>
+<tr><td>A. 內部有沒有材質</td><td>FruitNinja、GaussianFluent 內部填充、3DFusion 自己</td><td>它們的資產直接切開渲染</td><td>有無材質通道；重光照 LPIPS（烘焙 RGB 就是它們）</td><td>全是烘焙顏色，換光源就失效</td></tr>
+<tr><td>B. part 級物理預測</td><td>PhysX-Anything（CVPR 2026）、PhysX-Omni、VoMP（ICLR 2026，公開權重）、Pixie、NeRF2Physics</td><td>餵橘子外觀，取它們的材質場，切同一個 45° 斜面</td><td>斜切類別面積比對真實斜切照片的 KL；力曲線形狀；接觸數</td><td>整顆一種材質，皮佔比 0 或 100%，力曲線是弧</td></tr>
+<tr><td>C. 顏色指派</td><td>GaussianFluent 規則（自動化重實作）+ 它的 solver 跑它的西瓜</td><td>橘子用我們的重實作，西瓜用它的原始碼與資產</td><td>同 B</td><td>橘子找不到皮；西瓜平手，主動報告</td></tr>
+<tr><td>D. 光學估計</td><td>RGB↔X（SIGGRAPH 2024）、SuperMat（ICCV 2025）、IntrinsicAnything</td><td>對切面照片逐像素估 SVBRDF，不做每類約束</td><td>同一面漫射→閃光的重渲染 LPIPS / PSNR</td><td>濕高光被烘進 albedo；每類約束贏</td></tr>
+<tr><td>E. 材質分割</td><td>LAB K-means、DINOv2 原始分群、SAM2 自動遮罩、規則式 <code>material_field.py</code></td><td>在人工標注的 held-out 照片上</td><td>mIoU</td><td>—</td></tr>
+</table>
+<p>順序：Pixie 與 VoMP 各一天（有權重，輸入可直接餵資產），PhysX-Anything 一天，GaussianFluent 原始碼跑西瓜一週（配環境），RGB↔X 與 SuperMat 半天但等拍攝。B 軸不是比準確度，是比「表達得了與否」：它們給橘子一種材質，真實斜切照片說有三種。</p>
+
 <h2 id="lim">8. 限制，寫在論文裡的版本</h2>
 <ul>
 <li><b>上游品質</b>：材質場繼承生成體積的瑕疵（held-out DreamSim 0.087）。橘子資產極區偏白，被標成纖維組織；底部的缺口成了場裡的洞。這既是限制也是論點：上游生成越好，材質場越對。</li>
@@ -211,6 +223,24 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 </table>
 <div class="callout">兩個不能用的指標：<b>資產斜切渲染對另一顆橘子的照片算 PSNR</b>（不同個體，逐像素本來就對不上）；<b>單獨報告交線一致性或切向 TV</b>（常數場滿分）。</div>
 <p>代價是一個下午的手機拍攝與約兩週的 Mitsuba 3 擬合，後者本來就在計畫裡；省掉的是硬體，不是時間。</p>
+
+<h2 id="use">9c. 可用性：時間、記憶體、格式</h2>
+<p>方法能不能用，看它接進既有管線要付多少。全部在一張 RTX 3090 上量。</p>
+<table>
+<tr><th>步驟</th><th>規模</th><th>時間 / 記憶體</th></tr>
+<tr><td>Stage 1：128 張橫切 + 64 張縱切的 DINOv2 反投影</td><td>6.3M 個 core cell × 99 維</td><td class="num">188 s</td></tr>
+<tr><td>照片分類器（GPU GMM，K=3..6 各兩次）+ 資產標記</td><td>12 張照片、192 張虛擬切片</td><td class="num">150 s（sklearn 版 GMM 單獨就要 15 分鐘以上）</td></tr>
+<tr><td>NMFS 訓練</td><td>2,500 步 × 32k cell × 4 個鄰居</td><td class="num">265 s</td></tr>
+<tr><td>切割：連通元件重標</td><td>877k cell</td><td class="num">61–186 ms / 刀</td></tr>
+<tr><td>MPM 模擬 + 渲染</td><td>877k cell，60 substeps / 幀</td><td class="num">395 ms / 幀（約 2.5 fps）</td></tr>
+<tr><td>3DFusion 資產的 MPM</td><td>1.16M cell</td><td class="num">21 GB GPU</td></tr>
+</table>
+<ul>
+<li><b>格式</b>：材質住在 PLY 的每個 cell 上（<code>mat_label / mat_E / mat_t</code>），既有的 3DGS 載入器按名字讀欄位，不會被多出的屬性影響；切割管線只多讀一個 <code>MATERIAL_LABELS</code>。</li>
+<li><b>不改 solver</b>：<code>dynamic_cut.py</code> 原本就支援每粒子 E、ν、ρ，材質場只是把值填進去；唯一的變更是為了 CFL 把 dt 減半。</li>
+<li><b>一個程式</b>：從照片到可切割資產沒有每物件的旋鈕；K 由 held-out 轉移決定，類別到參數由類別範圍決定。</li>
+<li><b>沒有 3D 標籤、沒有硬體</b>：訓練用的是照片與資產本身，驗證用的是照片。</li>
+</ul>
 
 <h2 id="code">10. 程式與再現</h2>
 <pre>code/
