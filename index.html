@@ -135,6 +135,11 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <div class="callout"><b>接觸數不是證據，撤回。</b>在 3DFusion 資產上跑了兩次<b>物理完全相同</b>的 NMFS（只有 PLY 的顏色欄位不同，一次原色、一次材質視圖）：最後 40 幀的接觸數 30,199 對 7,670，第 90 幀皮的 squash 0.549 對 0.759。六塊碎片翻滾是混沌的，Warp 的原子加法本身不確定，加上一處未固定種子的取樣，任何單次 run 的接觸數或碎片 squash 差異都在 run 對 run 的雜訊裡。前一版報告的「6,438 對 16,113」也在這個雜訊裡，不能當結論。要用這類指標必須多個種子取平均與標準差，或改用不翻滾的場景（整顆落地）。</div>
 <p>工程上的一個發現：fruit 類別範圍把皮映到 8e6 Pa，在預設 dt=3e-4 的 CFL 餘裕只有 1.29 倍，Warp 報 illegal memory access；dt 減半到 1.5e-4（餘裕 2.6 倍）後所有 run 零錯誤。</p>
 <figure><img src="assets/squash_compare.png" alt="squash after cuts"><figcaption>切開後每塊碎片皮與內部沿重力的 squash。三種場趨勢相同且皆大於 1：切成六塊後碎片翻滾，這個量被剛體旋轉主導，<b>不能當證據</b>。</figcaption></figure>
+<h3>6.4 橫向比對：同一顆 3DFusion 橘子、同樣三刀、同一 solver，只有材質場不同</h3>
+<p>對手的共同缺點是<b>只有一種材質</b>：part 級方法（PhysX-Anything、VoMP、Pixie）給單一 part 的橘子一組參數，所以切到哪裡力曲線都是同一條弧，切下去沒有軟硬之分；顏色規則在橘子上找不到皮，退化成同樣的情況。每欄下方的曲線是該材質場的切削力形狀（對場的確定性積分），欄與欄之間的差異就是「刀鋒感受到的東西」的差異。第二欄是 NMFS 的材質視圖：同一個物理過程，用類別上色，看得到皮（黃）、果肉（橘）、纖維（藍）各自跟著碎片走。</p>
+<figure><img src="assets/montage_cut3.gif" alt="side-by-side cutting"><figcaption>由左到右：NMFS 異質場、NMFS 材質視圖、同質（等於 part 級方法對單 part 橘子的輸出）、GaussianFluent 顏色規則。下方各欄：橫切的切削力曲線。這裡是 3DFusion 版本的資產（1,162,387 個 cell），不是 FruitNinja 的。</figcaption></figure>
+<div class="callout"><b>怎麼讀這張圖。</b>看得出來的差異是定性的：碎片的挺立、切面的輪廓、落地後攤開的程度。<b>不要從動畫讀數字</b>：六塊碎片翻滾是混沌的，同樣物理跑兩次（第一、二欄）的碎片姿態就不同。定量的部分是下方的力曲線，它不依賴模擬。</div>
+
 <h3>6.3 整顆不切的落地</h3>
 <div class="grid2">
 <figure><img src="assets/drop_nmfs.gif" alt="drop NMFS"><figcaption>NMFS 異質場</figcaption></figure>
