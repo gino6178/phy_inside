@@ -3,281 +3,156 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>phy_inside — 從切面照片到可物理互動的內部材質場</title>
+<title>phy_inside: Heterogeneous Material Fields for Cuttable Generated Solids</title>
 <style>
-:root{--ink:#1c1c1c;--muted:#5d5d5d;--line:#e3e0da;--bg:#fbfaf7;--card:#ffffff;--accent:#c85a17;--accent2:#2b6cb0;--ok:#2f855a;--warn:#b7791f}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,"Segoe UI","Noto Sans TC","PingFang TC",Roboto,Helvetica,Arial,sans-serif}
-.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px}
-header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:28px}
-h1{font-size:30px;line-height:1.25;margin:0 0 8px}h2{font-size:22px;margin:44px 0 12px;padding-top:8px;border-top:1px solid var(--line)}h3{font-size:17px;margin:24px 0 8px}
-.sub{color:var(--muted);font-size:15px}
-.lead{font-size:18px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);padding:14px 18px;border-radius:6px}
-p{margin:10px 0}ul,ol{padding-left:22px}li{margin:4px 0}
-table{border-collapse:collapse;width:100%;margin:12px 0 18px;font-size:14.5px;background:var(--card)}th,td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}th{background:#f3f0ea}td.num{text-align:right;font-variant-numeric:tabular-nums}
-figure{margin:18px 0;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px}figure img{width:100%;height:auto;display:block;border-radius:3px}figcaption{font-size:13.5px;color:var(--muted);margin-top:8px}
+:root{--ink:#1a1a1a;--muted:#606060;--line:#e6e2dc;--bg:#ffffff;--soft:#f6f4f0;--accent:#c85a17;--blue:#2b6cb0;--green:#2f855a;--gold:#b7791f}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,"Segoe UI","Noto Sans TC","PingFang TC",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px}
+.hero{text-align:center;padding:56px 0 18px}
+.hero h1{font-size:34px;line-height:1.2;margin:0 0 10px;letter-spacing:-.01em}.hero .tag{font-size:19px;color:var(--muted);margin:0 0 14px}
+.hero .authors{font-size:16px;margin:6px 0}.hero .aff{font-size:14px;color:var(--muted)}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 8px}
+.btn{display:inline-block;padding:9px 16px;border-radius:999px;background:#1f1f1f;color:#fff;text-decoration:none;font-size:14px}.btn.alt{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.teaser{margin:22px 0 8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.teaser img{width:100%;display:block}
+.cap{font-size:13.5px;color:var(--muted);margin:8px 2px 0}
+h2{font-size:24px;margin:52px 0 12px;text-align:center}h2 small{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:4px}
+h3{font-size:18px;margin:26px 0 8px}
+p{margin:10px 0}
+.abs{max-width:860px;margin:0 auto;font-size:16.5px}
+.fig{margin:16px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.fig img{width:100%;display:block}.fig .cap{padding:10px 14px 12px;margin:0;background:var(--soft)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
-.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:14px 0}.pipe .box{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--accent2);border-radius:6px;padding:10px 12px;font-size:14px}.pipe .box b{display:block;margin-bottom:4px}.pipe .box .n{font-size:12px;color:var(--muted)}
-.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#f3f0ea;color:var(--muted);margin-right:6px}
-.ok{color:var(--ok);font-weight:600}.warn{color:var(--warn);font-weight:600}.bad{color:var(--accent);font-weight:600}
-code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px}pre{background:#f3f0ea;border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto}code{background:#f3f0ea;padding:1px 5px;border-radius:4px}
-.callout{background:#fff8ef;border:1px solid #f0d9b5;border-radius:6px;padding:12px 16px;margin:14px 0}
-.toc{columns:2;font-size:14.5px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 18px 12px 34px}@media(max-width:760px){.toc{columns:1}}
-footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--line);padding-top:14px}
+table{border-collapse:collapse;width:100%;margin:12px 0 6px;font-size:14.5px}th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}th{background:var(--soft)}td.n{text-align:right;font-variant-numeric:tabular-nums}
+.ok{color:var(--green);font-weight:600}.bad{color:var(--accent);font-weight:600}
+.note{background:#fff8ef;border:1px solid #f0d9b5;border-radius:8px;padding:12px 16px;margin:14px 0;font-size:15px}
+.arch{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px;overflow-x:auto}.arch svg{width:100%;height:auto;display:block;min-width:720px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 6px}.tabs button{border:1px solid var(--line);background:var(--soft);padding:6px 12px;border-radius:999px;cursor:pointer;font-size:14px}.tabs button.on{background:#1f1f1f;color:#fff;border-color:#1f1f1f}
+pre{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);padding:1px 5px;border-radius:4px}
+footer{margin-top:56px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+a{color:var(--blue)}
 </style>
 </head>
 <body><div class="wrap">
-<header>
-<h1>phy_inside：從切面照片到可物理互動的內部材質場</h1>
-<div class="sub">專案分析　·　2026-09-04　·　程式與圖表全部來自本 repo，數字均為實際量測，未量的地方明寫</div>
-</header>
 
-<p class="lead">生成的 3D 資產只有表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法把體積填成顏色而已，物理感知的管線則每個 part 一組均勻參數。對所有現有方法而言，<b>一顆橘子是一個 part、一種物質</b>。本專案把一個由少量切面照片合成的內部體積，分解成一個異質、可模擬的材質場：皮、果肉、纖維組織各有各的力學，切開的面可重光照，刀鋒切過時的阻力隨材質變化。</p>
+<section class="hero">
+<h1>phy_inside: Heterogeneous Material Fields for Cuttable Generated Solids</h1>
+<p class="tag">從幾張切面照片，到皮、果肉、纖維各有各的物理的可切割數位孿生資產</p>
+<p class="authors">Gino (gino6178) · 2026</p>
+<p class="aff">Fruit3D Fusion → phy_inside · 所有數字為實際量測，未做的部分明寫</p>
+<div class="btns">
+<a class="btn" href="analysis.html">完整分析（Analysis）</a>
+<a class="btn" href="https://github.com/gino6178/phy_inside">Code</a>
+<a class="btn alt" href="notes/next-paper-plan.md">論文計畫（Plan）</a>
+<a class="btn alt" href="asset/orange_phy_material.pt">材質場資產（.pt）</a>
+<a class="btn alt" href="#bib">BibTeX</a>
+</div>
+<div class="teaser"><img src="assets/montage_cut3.gif" alt="teaser"></div>
+<p class="cap">同一顆 3DFusion 橘子、同樣三刀、同一 MPM solver，只有材質場不同。由左到右：我們的異質場、其材質視圖（皮黃、果肉橘、纖維藍）、同質材質（等於 part 級方法對單 part 橘子的輸出）、GaussianFluent 的顏色規則。每欄下方是該場的切削力曲線：同質與顏色規則是一條弧，我們的場有皮的進出雙峰。</p>
+</section>
 
-<ol class="toc">
-<li><a href="#abs">摘要</a></li><li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#asset">材質場寫進資產</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#cmp">比較集</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#evidence">驗證計畫（無荷重元）</a></li><li><a href="#use">可用性</a></li><li><a href="#code">程式與再現</a></li>
-</ol>
+<h2>Abstract</h2>
+<div class="abs">
+<p>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是<b>一顆橘子對所有現有方法而言都是單一物質</b>。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（3+3 張，對六顆沒看過的橘子轉移一致性 0.93），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性解剖先驗與夾雜物 head 學出每個 cell 的物質。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
+<p style="color:var(--muted);font-size:15px">Generated 3D assets stop at the surface. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid: the material inventory is learned on real cut photographs, back-projected as pseudo-labels, and a neural material field on the cylindrical lattice is trained with no 3D labels. Every voxel of the asset carries its substance, so a planar cut is a topological event and every fragment keeps its material.</p>
+</div>
 
-<h2 id="abs">摘要</h2>
-<p><b>中文。</b>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是一顆橘子對所有現有方法而言都是單一物質。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（三加三張，對六顆沒看過的橘子轉移一致性 0.93），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性幾何先驗與夾雜物 head 學出每個 cell 的物質類別。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
-<p><b>English.</b> Generated 3D assets stop at the surface: image-to-3D models emit full PBR materials on the exterior, interior-generation methods fill the volume with colour and nothing else, and physics-aware pipelines assign one material per part, so that to all of them an orange is a single substance. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid. The material inventory is learned on <b>real cut photographs</b> (3+3, transferring to six unseen oranges at 0.93 agreement) and back-projected into the volume as pseudo-labels; a neural material field on the cylindrical lattice (NMFS) is trained with <b>no 3D labels</b> from pseudo-label cross-entropy, cross-family consistency, an anisotropic anatomical prior and an inclusion head. Each substance is bound to mechanical parameters and <b>written into every voxel of the asset</b>, so a planar cut is a topological event on the lattice and every fragment carries its material. On the same orange and the same solver, the heterogeneous field yields the peel entry/exit spikes in the cut-force profile, and on impact a smaller overall deformation with the interior shielded by the shell; colour-based assignment finds no peel on the orange at all, because skin and flesh share a colour.</p>
+<h2>Architecture <small>照片 → 2D 材質 → 3D 神經材質場 → 帶材質的 voxel 資產 → 物理與光學</small></h2>
+<div class="arch">
+<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Noto Sans TC,Roboto,Helvetica,Arial,sans-serif">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+<style>.b{fill:#fff;stroke:#c9c3ba;stroke-width:1.2;rx:8}.t{font-size:13px;fill:#1a1a1a}.s{font-size:11px;fill:#606060}.h{font-size:12px;font-weight:700;fill:#2b6cb0}.a{stroke:#555;stroke-width:1.6;fill:none;marker-end:url(#ar)}.l{font-size:11px;fill:#c85a17}.g{fill:#f6f4f0;stroke:#e6e2dc;stroke-width:1;rx:10}</style></defs>
 
-<h2 id="pos">1. 定位與缺口</h2>
-<p>逐篇查證最近的方法在材質上的粒度。論文的新穎性主張就落在這張表上。</p>
-<table>
-<tr><th>方法</th><th>材質粒度</th><th>內部怎麼拿到材質</th></tr>
-<tr><td>PhysX-Anything（CVPR 2026）</td><td>每個 part，輸出 URDF / XML</td><td>沒有內部場，part 內均勻</td></tr>
-<tr><td>PhysX-Omni（2026）</td><td>每個 part，part 級 voxel grid</td><td>同上</td></tr>
-<tr><td>VoMP / AdaVoMP（ICML 2026）</td><td>逐 voxel，但標注是 part 級</td><td>自述「we treat each part as having isotropic material」；限制段落承認對木材等不成立</td></tr>
-<tr><td>Pixie / UniPixie</td><td>逐 voxel 64³</td><td>標籤來自表面語意分割，內部繼承 part 標籤；遮蔽區域列為未來工作</td></tr>
-<tr><td>Phys4DGen（ACM MM 2025）</td><td>逐粒子</td><td>沿六軸投射射線，把最常見的<b>表面</b>材質複製進內部</td></tr>
-<tr><td>GaussianFluent（CVPR 2026）</td><td>逐 Gaussian</td><td>唯一有 part 內異質的，但是<b>人手按顏色指派</b>；limitation 自述參數手動設定、希望以逆渲染或學習自動化</td></tr>
-</table>
-<div class="callout"><b>可守的宣稱只有兩層</b>：(1) <b>part 內的異質性</b>：現有方法沒有一個讓 part 內部變化；(2) <b>監督來自內部觀測</b>：其他方法全從外面推。<br><b>不可宣稱</b>：逐 voxel 材質是新的（VoMP、Pixie 都輸出逐 voxel）、預測絕對模數、輸入未標定。</div>
+<rect class="g" x="8" y="8" width="984" height="150"/><text class="h" x="20" y="28">STAGE 1 · 真實照片學材質，投到資產（Photos → 2D material → asset pseudo-labels）</text>
+<rect class="b" x="20" y="40" width="170" height="100"/><text class="t" x="30" y="62">切面照片 3+3</text><text class="s" x="30" y="80">橫切 / 縱切，不同個體</text><text class="s" x="30" y="96">held-out 3+3 只評估</text><text class="s" x="30" y="124">每張各自白化</text>
+<rect class="b" x="215" y="40" width="200" height="100"/><text class="t" x="225" y="62">2D 材質分類器</text><text class="s" x="225" y="80">DINOv2 stride 4 + LAB + Gabor</text><text class="s" x="225" y="96">+ 半徑；GPU GMM</text><text class="s" x="225" y="112">K 由 spl→held-out 轉移決定</text><text class="l" x="225" y="130">K=3，一致性 0.93</text>
+<rect class="b" x="440" y="40" width="180" height="100"/><text class="t" x="450" y="62">3DFusion 資產</text><text class="s" x="450" y="80">A[r, φ, z] 128×512×256</text><text class="s" x="450" y="96">由同一批照片生成</text><text class="s" x="450" y="112">shell / core 遮罩</text>
+<rect class="b" x="645" y="40" width="160" height="100"/><text class="t" x="655" y="62">虛擬切片</text><text class="s" x="655" y="80">128 橫切 + 64 縱切</text><text class="s" x="655" y="96">無光照正交渲染</text><text class="s" x="655" y="112">每族用中央切片白化</text>
+<rect class="b" x="830" y="40" width="150" height="100"/><text class="t" x="840" y="62">反投影</text><text class="s" x="840" y="80">每 cell 各取最近的</text><text class="s" x="840" y="96">一橫一縱切片</text><text class="s" x="840" y="112">→ F_t, F_l, P(k|c)</text>
+<path class="a" d="M190,90 L215,90"/><path class="a" d="M415,90 L440,90"/><path class="a" d="M620,90 L645,90"/><path class="a" d="M805,90 L830,90"/>
 
-<h2 id="pre">2. 動手前量到的四件事</h2>
-<p>每個前提都先量，量到反的就改設計。這一節的結果直接決定了後面管線的形狀。</p>
-<h3>2.1 真實商品的內部並不實心（ABO，4,152 個有重量的 3D 模型）</h3>
-<figure><img src="assets/abo_fill.png" alt="ABO fill ratio"><figcaption>質量 ÷ 外殼包圍體積的表觀密度（左），與按標示材質的填充率（右）。硬質商品 49% 表觀密度低於 500 kg/m³；金屬商品填充率中位數 0.08、97% 低於 0.5。均勻實心假設在真實商品上有一半是錯的。</figcaption></figure>
-<h3>2.2 單一機械零件沒有封閉空腔（Fusion 360，8,000 個零件）</h3>
-<p>填充率中位數 1.00，有封閉空腔的只有 3 個。空心是<b>產品層級</b>的（管件、板件圍成的盒），不是零件層級的。在 711 個組件上：13% 填充率低於 0.8；空心組件用均勻實心算慣量錯 24%，已知質量的等壁厚殼把它壓到 5%。這條線因此被判定「痛點在質量而不在結構」而放下，數字保留。</p>
-<h3>2.3 顏色分不出材質，語意特徵可以，但解析度不夠</h3>
+<rect class="g" x="8" y="172" width="984" height="170"/><text class="h" x="20" y="192">STAGE 2 · NMFS 神經材質場（no 3D labels）</text>
+<rect class="b" x="20" y="205" width="150" height="120"/><text class="t" x="30" y="227">輸入</text><text class="s" x="30" y="246">PE(r, φ, z)</text><text class="s" x="30" y="262">F_t（橫切特徵）</text><text class="s" x="30" y="278">F_l（縱切特徵）</text><text class="s" x="30" y="294">局部上下文</text><text class="s" x="30" y="310">（薄的週期 3D conv）</text>
+<rect class="b" x="195" y="205" width="230" height="120"/><text class="t" x="205" y="227">M_θ</text><text class="s" x="205" y="246">head_t(PE, F_t) → P_t</text><text class="s" x="205" y="262">head_l(PE, F_l) → P_l</text><text class="s" x="205" y="278">fuse(h_t, h_l) → P, P_incl</text><text class="s" x="205" y="300">每 cell MLP，265 s / 6.3M cell</text>
+<rect class="b" x="450" y="205" width="260" height="120"/><text class="t" x="460" y="227">損失（全部無 3D 標籤）</text><text class="s" x="460" y="246">L_pseudo：高信心偽標籤的 CE</text><text class="s" x="460" y="262">L_cross：KL(P_t ‖ P_l) 對稱</text><text class="s" x="460" y="278">L_geom：沿 r L1（便宜），沿 φ, z L2（貴）</text><text class="s" x="460" y="294">L_incl：focal，薄纖維結構</text><text class="s" x="460" y="312">（渲染、力曲線不是訓練損失）</text>
+<rect class="b" x="735" y="205" width="245" height="120"/><text class="t" x="745" y="227">材質場 (k, t)</text><text class="s" x="745" y="246">k：皮 / 果肉 / 纖維（離散）</text><text class="s" x="745" y="262">t：類內連續調變（PC1）</text><text class="s" x="745" y="278">夾雜物 head 保住囊瓣膜</text><text class="l" x="745" y="300">非信心 cell 一致 0.67→0.84</text><text class="l" x="745" y="316">膜保留 0.078→0.123</text>
+<path class="a" d="M170,265 L195,265"/><path class="a" d="M425,265 L450,265"/><path class="a" d="M710,265 L735,265"/>
+<path class="a" d="M905,140 L905,172"/><path class="a" d="M530,140 L530,172"/>
+
+<rect class="g" x="8" y="356" width="984" height="196"/><text class="h" x="20" y="376">STAGE 3 / 4 · 寫進資產、綁定物理與光學</text>
+<rect class="b" x="20" y="390" width="230" height="140"/><text class="t" x="30" y="412">每個 voxel 帶材質</text><text class="s" x="30" y="431">PLY 多三個屬性：</text><text class="s" x="30" y="447">mat_label / mat_E / mat_t</text><text class="s" x="30" y="463">+ 同順序的 _material.pt</text><text class="s" x="30" y="479">shell cell 依 cell_level = 皮</text><text class="s" x="30" y="495">既有 3DGS 載入器不受影響</text><text class="l" x="30" y="516">1,162,387 cell</text>
+<rect class="b" x="275" y="390" width="230" height="140"/><text class="t" x="285" y="412">力學（demo）</text><text class="s" x="285" y="431">每類 E, ν, ρ（類別範圍，假設）</text><text class="s" x="285" y="447">MPM：切割 = 連通元件</text><text class="s" x="285" y="463">一片一個 solver，碎片帶材質</text><text class="s" x="285" y="479">F(s) = Σ τ(k)·dl（確定性）</text><text class="l" x="285" y="500">皮 8e6 Pa → dt 1.5e-4（CFL）</text><text class="l" x="285" y="516">61–186 ms / 刀</text>
+<rect class="b" x="530" y="390" width="220" height="140"/><text class="t" x="540" y="412">光學（planned）</text><text class="s" x="540" y="431">每類一組 SVBRDF + SSS</text><text class="s" x="540" y="447">在照片上擬合（平面 proxy）</text><text class="s" x="540" y="463">同一切面：漫射擬合、閃光預測</text><text class="s" x="540" y="479">背光薄片定錨 σ_t</text><text class="s" x="540" y="500">Mitsuba 3</text>
+<rect class="b" x="775" y="390" width="205" height="140"/><text class="t" x="785" y="412">驗證（無荷重元）</text><text class="s" x="785" y="431">E4 重光照 LPIPS / PSNR</text><text class="s" x="785" y="447">E2b 真實斜切的類別面積比</text><text class="s" x="785" y="463">held-out 個體一致性</text><text class="s" x="785" y="479">力學：示範，不宣稱驗證</text><text class="s" x="785" y="500">對手：PhysX-Anything, VoMP,</text><text class="s" x="785" y="516">Pixie, GaussianFluent, RGB↔X</text>
+<path class="a" d="M857,325 L857,356"/><path class="a" d="M250,460 L275,460"/><path class="a" d="M505,460 L530,460"/><path class="a" d="M750,460 L775,460"/>
+</svg>
+</div>
+<p class="cap">三個設計決定各對應一個先量到的事實：材質清單在真實照片上學（顏色在個體間不轉移、DINOv2 才分得出中柱）；2D→3D 不做機率乘積提升（資產本身跨切面一致，45° 斜切無接縫）；shell cell 直接定為皮（分類器的 core 只到 r≈0.8）。</p>
+
+<h2>I. 真實照片學材質，投到資產 <small>Stage 1</small></h2>
+<div class="fig"><img src="assets/photo2asset.png" alt="photo to asset"><p class="cap">上兩列：六張訓練照片與六張 held-out 照片，用訓練照片學到的 K=3 分類器標記；十二顆不同的橘子，標籤在解剖上一致。下兩列：3DFusion 資產的橫切、縱切、45° 斜切，同一個分類器經虛擬切片反投影標記。K=3 對 held-out 的 Hungarian 一致性 0.93，K=4 掉到 0.61。</p></div>
 <div class="grid2">
-<figure><img src="assets/clusters_trans_K4.png" alt="transverse photo clustering"><figcaption>橘子橫切照片。GMM 只在三張 spl 上擬合、套到三顆 held-out。LAB 顏色（中排）的類別在個體間不轉移；DINOv2（下排）在 stride 14 下太粗。</figcaption></figure>
-<figure><img src="assets/clusters_long_K4.png" alt="longitudinal photo clustering"><figcaption>縱切。LAB 把外皮和中柱歸成同一群（兩者都是淡色），DINOv2 把中柱穩定分出來。這正是力學上最要命的混淆，也是顏色規則會犯的錯。</figcaption></figure>
+<div class="fig"><img src="assets/clusters_long_K4.png" alt="why not colour"><p class="cap">為什麼不能只用顏色：LAB 把外皮與中柱歸成同一群（兩者都是淡色），DINOv2 把中柱穩定分出來。這正是力學上最要命的混淆。</p></div>
+<div class="fig"><img src="assets/asset_clusters.png" alt="asset consistency"><p class="cap">資產自帶一致性：45° 斜切從未被任何一族監督，卻與橫切、縱切一致，所以不需要 2D→3D 的機率乘積提升。</p></div>
 </div>
-<h3>2.4 資產本身自帶一致性</h3>
-<figure><img src="assets/asset_clusters.png" alt="asset clustering"><figcaption>直接對 3DFusion 資產的 cell 分群（切片反投影特徵）。三欄是橫切、縱切、45° 斜切；斜切沒有被任何一族監督過，卻和另外兩個切面一致。全特徵 K=4 的一半切片一致性 0.98，K=5 掉到 0.74，BIC 卻在 K=5 更低：百萬 cell 上 BIC 不能選 K，穩定性才行。</figcaption></figure>
 
-<h2 id="pipe">3. 管線</h2>
-<div class="pipe">
-<div class="box"><b>輸入</b>3DFusion 資產 A[r, φ, z]<span class="n">128×512×256 圓柱格，來自 3+3 張切面照片</span></div>
-<div class="box"><b>Stage 1</b>真實照片學材質清單 → 虛擬切片反投影<span class="n">DINOv2 stride 4 + LAB + Gabor，每族最近一張切片</span></div>
-<div class="box"><b>Stage 2</b>NMFS 神經材質場<span class="n">偽標籤 + 兩族一致 + 各向異性幾何 + 夾雜物 head</span></div>
-<div class="box"><b>Stage 3</b>每類 SVBRDF + 散射<span class="n">在照片上擬合，未做</span></div>
-<div class="box"><b>Stage 4</b>力學與切割<span class="n">切削力曲線、MPM 三刀、落地</span></div>
-</div>
-<p>三個設計決定，各對應第 2 節的一個量測：材質清單<b>在真實照片上學</b>（2.3），不在生成體積上發明；2D 到 3D <b>不做 PoE 提升</b>，因為資產本身一致（2.4）；<b>shell cell 依 cell_level 直接定為皮</b>，分類器只管 core，因為 CORE 只到 r≈0.8，真正的皮不在分類範圍。</p>
-
-<h2 id="s1">4. Stage 1：真實照片學材質，投到資產</h2>
-<figure><img src="assets/photo2asset.png" alt="photo to asset"><figcaption>上兩列：六張 spl 與六張 held-out 照片，用 spl 學到的 K=3 分類器標記。下兩列：資產的三個切面，同一個分類器經虛擬切片反投影標記。</figcaption></figure>
-<table>
-<tr><th>K</th><th>spl → held-out 橘子的 Hungarian 一致性</th></tr>
-<tr><td>3</td><td class="num"><span class="ok">0.933</span></td></tr><tr><td>4</td><td class="num">0.610</td></tr><tr><td>5</td><td class="num">0.602</td></tr><tr><td>6</td><td class="num">0.693</td></tr>
-</table>
-<p>真實資料支持的清單是三類：皮、果肉、白色纖維組織（中柱、囊瓣膜、白絡）。資產上兩族（橫切 vs 縱切）的標籤不一致 0.19，這是本質的：橫切看到放射狀的膜，縱切看到一根中柱，同一個 cell 的 2D 判斷本來就不同；每族用中央切片統計白化只把極區從 0.26 降到 0.17，中段不變。</p>
-
-<h2 id="s2">5. Stage 2：NMFS 神經材質場</h2>
-<p>M<sub>θ</sub> : (PE(r,φ,z), F<sub>t</sub>, F<sub>l</sub>, 局部上下文) ↦ (P<sub>t</sub>, P<sub>l</sub>, P, P<sub>incl</sub>)。每 cell 的 MLP 加位置編碼，每族一個 head 看自己族的反投影特徵，融合 head，薄的週期性 3D conv 給局部上下文，夾雜物 head 保住薄結構。<b>全程沒有一張 3D 標籤</b>。</p>
-<table>
-<tr><th>損失</th><th>內容</th><th>訊號來源</th></tr>
-<tr><td>L<sub>pseudo</sub></td><td>高信心 cell 上，P 對照片分類器反投影標籤的交叉熵</td><td>真實照片，弱監督</td></tr>
-<tr><td>L<sub>cross</sub></td><td>對稱 KL(P<sub>t</sub> ‖ P<sub>l</sub>)</td><td>兩族各自的特徵，自監督</td></tr>
-<tr><td>L<sub>geom</sub></td><td>沿 r 的 L1（便宜）、沿 φ 與 z 的 L2（昂貴）；夾雜物 cell 豁免</td><td>解剖先驗：組織徑向分層、切向延展</td></tr>
-<tr><td>L<sub>incl</sub></td><td>focal loss，目標是核心區外的纖維組織</td><td>膜與白絡</td></tr>
-</table>
-<div class="callout">被拿掉的兩個損失：可微渲染損失搆不到 3D（資產不是被拍的那顆，逐像素對不上，梯度只能到每類參數）；力曲線損失在資料存在前是驗證不是訓練訊號。</div>
-<figure><img src="assets/nmfs.png" alt="NMFS"><figcaption>照片分類器 argmax、GMM+MRF、NMFS、夾雜物 head 機率。橫切的放射狀膜在 MRF 被抹掉，NMFS 由夾雜物 head 補回。</figcaption></figure>
+<h2>II. NMFS 神經材質場 <small>Stage 2 · 沒有一張 3D 標籤</small></h2>
+<div class="fig"><img src="assets/nmfs.png" alt="NMFS"><p class="cap">由上而下：照片分類器的 argmax、GMM+MRF 基線、NMFS 最終標籤、夾雜物 head 的機率。橫切的放射狀囊瓣膜在 MRF 被抹掉，NMFS 由夾雜物 head 補回。</p></div>
 <table>
 <tr><th>指標（橘子）</th><th>分類器</th><th>GMM + MRF</th><th>NMFS</th></tr>
-<tr><td>兩族不一致</td><td class="num">0.187</td><td class="num">0.188</td><td class="num"><span class="ok">0.001</span></td></tr>
-<tr><td>在非信心 cell 上與分類器一致</td><td class="num">—</td><td class="num">0.67</td><td class="num"><span class="ok">0.84</span></td></tr>
-<tr><td>核心區外的纖維組織（膜的保留）</td><td class="num">0.122</td><td class="num">0.078</td><td class="num"><span class="ok">0.123</span></td></tr>
-<tr><td>斜切變化率 / 橫切變化率</td><td class="num">—</td><td class="num">0.033 / 0.043</td><td class="num">0.052 / 0.069</td></tr>
-<tr><td>訓練時間</td><td class="num">—</td><td class="num">秒級</td><td class="num">265 s</td></tr>
+<tr><td>在非信心 cell 上與 held-out 驗證過的分類器一致</td><td class="n">—</td><td class="n">0.67</td><td class="n"><span class="ok">0.84</span></td></tr>
+<tr><td>核心區外的纖維組織（囊瓣膜的保留）</td><td class="n">0.122</td><td class="n">0.078</td><td class="n"><span class="ok">0.123</span></td></tr>
+<tr><td>兩族不一致（診斷，共用 head 所以被建構為一致）</td><td class="n">0.187</td><td class="n">0.188</td><td class="n">0.001</td></tr>
+<tr><td>斜切變化率 / 橫切變化率（無接縫）</td><td class="n">—</td><td class="n">0.033 / 0.043</td><td class="n">0.052 / 0.069</td></tr>
+<tr><td>訓練時間</td><td class="n">—</td><td class="n">秒級</td><td class="n">265 s</td></tr>
 </table>
-<p><b>要打折讀的是 0.001</b>：兩個 head 共用類別層又被 KL 拉在一起，一致性是建構出來的。有意義的是第二行：偽標籤只用了信心高的 cell，其餘 cell 從未進過交叉熵，NMFS 在它們上與 held-out 驗證過的分類器有 0.84 一致。缺點是皮與果肉的邊界有斑點。</p>
-<figure><img src="assets/stage2_field.png" alt="stage 2 field"><figcaption>基線版 Stage 2（GMM 後驗 → MRF + shell 規則 → 果肉內連續調變 t）。Shell 規則補上了完整的皮環；t 是近中柱低、近皮高的平滑徑向梯度。</figcaption></figure>
+<p class="cap">偽標籤只用了信心高的 cell，其餘 cell 從未進過交叉熵；NMFS 在它們上與分類器的一致由 0.67 升到 0.84，是「學到了東西」的證據。0.001 要打折讀：兩個 head 共用類別層又被 KL 拉在一起。</p>
 
-<h2 id="s4">6. Stage 4：切削力、切割、落地</h2>
-<h3>6.1 切削力曲線的形狀</h3>
-<p>刀鋒是躺在切面上的直線，沿 d 前進；F(s) = Σ<sub>刀鋒前緣</sub> τ(k(x))·dl。τ 是<b>相對值</b>（皮 1.0、纖維 0.5、果肉 0.15），只宣稱曲線形狀。</p>
-<figure><img src="assets/cutforce_profiles.png" alt="cut-force profiles"><figcaption>四種材質場。NMFS 與 MRF 有皮的進出雙峰與低的果肉平台；同質場是弦長的弧；<b>顏色規則在橘子上找不到皮</b>，因為外皮和果肉都是橘色，它的曲線幾乎就是同質的弧。</figcaption></figure>
-<table>
-<tr><th>橫切</th><th>進出峰</th><th>果肉平台</th><th>中心 / 平台</th></tr>
-<tr><td>NMFS</td><td class="num">0.98</td><td class="num">0.70</td><td class="num">1.27</td></tr>
-<tr><td>GMM + MRF</td><td class="num">0.85</td><td class="num">0.59</td><td class="num">1.21</td></tr>
-<tr><td>同質</td><td class="num">0.60</td><td class="num">0.93</td><td class="num">1.07</td></tr>
-<tr><td>顏色規則（GaussianFluent）</td><td class="num">0.63</td><td class="num">0.92</td><td class="num">0.92</td></tr>
-</table>
-<p>中柱那個特徵是凸是凹取決於 τ<sub>纖維</sub> 與 τ<sub>果肉</sub> 的相對大小，論文不預先宣稱方向，留給荷重元。</p>
-<h3>6.2 MPM 三刀六塊，同一顆橘子、同一 solver，只有材質場不同</h3>
-<div class="grid3">
-<figure><img src="assets/nmfs_cut.gif" alt="NMFS cut"><figcaption>NMFS 異質場</figcaption></figure>
-<figure><img src="assets/uniform_cut.gif" alt="uniform cut"><figcaption>uniform 同質（1.2e6 Pa）</figcaption></figure>
-<figure><img src="assets/colour_cut.gif" alt="colour-rule cut"><figcaption>GaussianFluent 顏色規則</figcaption></figure>
-</div>
-<table>
-<tr><th></th><th>NMFS</th><th>uniform</th><th>顏色規則</th></tr>
-<tr><td>碎片數</td><td class="num">6</td><td class="num">6</td><td class="num">6</td></tr>
-<tr><td>最後 40 幀的平均接觸數（FruitNinja lattice）</td><td class="num">6,438</td><td class="num">16,113</td><td class="num">12,532</td></tr>
-<tr><td>同上（3DFusion lattice）</td><td class="num">30,199</td><td class="num">19,909</td><td class="num">37,048</td></tr>
-</table>
-<div class="callout"><b>接觸數不是證據，撤回。</b>在 3DFusion 資產上跑了兩次<b>物理完全相同</b>的 NMFS（只有 PLY 的顏色欄位不同，一次原色、一次材質視圖）：最後 40 幀的接觸數 30,199 對 7,670，第 90 幀皮的 squash 0.549 對 0.759。六塊碎片翻滾是混沌的，Warp 的原子加法本身不確定，加上一處未固定種子的取樣，任何單次 run 的接觸數或碎片 squash 差異都在 run 對 run 的雜訊裡。前一版報告的「6,438 對 16,113」也在這個雜訊裡，不能當結論。要用這類指標必須多個種子取平均與標準差，或改用不翻滾的場景（整顆落地）。</div>
-<p>工程上的一個發現：fruit 類別範圍把皮映到 8e6 Pa，在預設 dt=3e-4 的 CFL 餘裕只有 1.29 倍，Warp 報 illegal memory access；dt 減半到 1.5e-4（餘裕 2.6 倍）後所有 run 零錯誤。</p>
-<figure><img src="assets/squash_compare.png" alt="squash after cuts"><figcaption>切開後每塊碎片皮與內部沿重力的 squash。三種場趨勢相同且皆大於 1：切成六塊後碎片翻滾，這個量被剛體旋轉主導，<b>不能當證據</b>。</figcaption></figure>
-<h3>6.4 橫向比對：同一顆 3DFusion 橘子、同樣三刀、同一 solver，只有材質場不同</h3>
-<p>對手的共同缺點是<b>只有一種材質</b>：part 級方法（PhysX-Anything、VoMP、Pixie）給單一 part 的橘子一組參數，所以切到哪裡力曲線都是同一條弧，切下去沒有軟硬之分；顏色規則在橘子上找不到皮，退化成同樣的情況。每欄下方的曲線是該材質場的切削力形狀（對場的確定性積分），欄與欄之間的差異就是「刀鋒感受到的東西」的差異。第二欄是 NMFS 的材質視圖：同一個物理過程，用類別上色，看得到皮（黃）、果肉（橘）、纖維（藍）各自跟著碎片走。</p>
-<figure><img src="assets/montage_cut3.gif" alt="side-by-side cutting"><figcaption>由左到右：NMFS 異質場、NMFS 材質視圖、同質（等於 part 級方法對單 part 橘子的輸出）、GaussianFluent 顏色規則。下方各欄：橫切的切削力曲線。這裡是 3DFusion 版本的資產（1,162,387 個 cell），不是 FruitNinja 的。</figcaption></figure>
-<div class="callout"><b>怎麼讀這張圖。</b>看得出來的差異是定性的：碎片的挺立、切面的輪廓、落地後攤開的程度。<b>不要從動畫讀數字</b>：六塊碎片翻滾是混沌的，同樣物理跑兩次（第一、二欄）的碎片姿態就不同。定量的部分是下方的力曲線，它不依賴模擬。</div>
-
-<h3>6.5 一刀之後從高處落下（FLOOR_DROP=1.3）</h3>
-<figure><img src="assets/montage_fall.gif" alt="fall montage"><figcaption>3DFusion 資產切成兩半後真實落下。由左到右：NMFS、NMFS 材質視圖、同質。材質視圖顯示切面上的皮（黃）、纖維中柱（藍）、果肉（橘）跟著半球一起落地。</figcaption></figure>
-<p>誠實的讀法：兩個半球落地後仍會翻滾，同樣物理跑兩次的 squash 差到 0.19，所以這裡也只有定性的差異；而且這個 lattice 的 shell 佔 41% 的 cell，皮與內部沿重力的伸展幾乎相同（內部 / 皮 ≈ 1.00），這個指標在此無法分辨。要拿到可用的落地數字，需要多種子平均、或不切開的整顆落地（第 6.3 節，在 FruitNinja lattice 上：NMFS 第一次落地皮 0.973 對同質 0.951）。</p>
-
-<h3>6.3 整顆不切的落地</h3>
-<div class="grid2">
-<figure><img src="assets/drop_nmfs.gif" alt="drop NMFS"><figcaption>NMFS 異質場</figcaption></figure>
-<figure><img src="assets/drop_uniform.gif" alt="drop uniform"><figcaption>uniform 同質</figcaption></figure>
-</div>
-<figure><img src="assets/drop_compare.png" alt="drop compare"><figcaption>左：皮與內部沿重力的伸展比；右：內部 / 皮。</figcaption></figure>
-<table>
-<tr><th></th><th>NMFS</th><th>uniform</th></tr>
-<tr><td>第一次落地，皮的最小伸展比</td><td class="num">0.973</td><td class="num">0.951</td></tr>
-<tr><td>第一次落地，內部</td><td class="num">0.979</td><td class="num">0.958</td></tr>
-<tr><td>第二次彈跳的時間</td><td class="num">約第 48 幀</td><td class="num">約第 55 幀</td></tr>
-<tr><td>內部 / 皮（落地時）</td><td class="num">1.036</td><td class="num">1.008</td></tr>
-</table>
-<p>硬皮讓整顆變形少一半、彈得更快，內部被皮屏蔽。效果是百分之幾，因為落地很輕、皮只有一到三個 cell 厚；這是 E6 的模擬版本，荷重元的壓縮曲線才給它真實的數字。</p>
-
-<h2 id="asset">6b. 材質場寫進資產的每個 voxel</h2>
-<p>切割時碎片要帶著材質，材質就得住在 cell 上，不能只是外面的一張表。<code>code/attach_material.py</code> 把 NMFS 的場寫回 3DFusion 的 lattice 資產（<code>trained/orange.ply</code> 經 <code>writeback.py</code> 寫入 3DFusion 內部顏色後，1,162,387 個 cell）：</p>
+<h2>III. 材質寫進每個 voxel <small>切割時碎片帶著材質</small></h2>
+<div class="fig"><img src="assets/stage2_field.png" alt="field"><p class="cap">材質場的三個切面：後驗 argmax → MRF 與 shell 規則 → 果肉內的連續調變 t（近中柱低、近皮高）。</p></div>
 <table>
 <tr><th>檔案</th><th>內容</th><th>用途</th></tr>
-<tr><td><code>orange_phy.ply</code></td><td>原資產加三個每 cell 屬性：<code>mat_label</code>（0 纖維、1 果肉、2 皮）、<code>mat_E</code>（Pa）、<code>mat_t</code>（類內連續調變）</td><td>任何按名字讀欄位的載入器都能直接用；現有 3DGS 載入器讀 x/y/z/f_dc/opacity 等欄位，多出的屬性不影響</td></tr>
-<tr><td><code>orange_phy_material.pt</code></td><td>同一場的張量：labels、E、t，與 PLY 同順序</td><td>切割管線讀 labels（<code>MATERIAL_LABELS</code>），每個 cell 進 solver 時帶自己的 E、ν、ρ</td></tr>
-<tr><td><code>orange_phy_matview.ply</code></td><td>同幾何、f_dc 換成類別顏色</td><td>「材質視圖」：同一個物理過程，用材質上色渲染</td></tr>
+<tr><td><code>orange_phy.ply</code></td><td>3DFusion 資產 + 每 cell 三個屬性 <code>mat_label / mat_E / mat_t</code></td><td>任何按名字讀欄位的載入器直接可用；現有 3DGS 載入器不受影響</td></tr>
+<tr><td><code>orange_phy_material.pt</code></td><td>同順序的 labels、E、t</td><td>切割管線讀 labels，每個 cell 進 solver 帶自己的 E, ν, ρ</td></tr>
+<tr><td><code>orange_phy_matview.ply</code></td><td>同幾何，f_dc 換成類別顏色</td><td>「材質視圖」：同一個物理過程用材質上色</td></tr>
 </table>
-<p>皮 656,761 個 cell（含 cell_level 為 1 的 480,287 個 shell cell）、果肉 341,239、纖維組織 164,387；E 由類別範圍給定（fruit：2e5 到 8e6 Pa）。切割是連通元件，cell 不會被刪除或搬家，所以碎片天然帶著自己的材質。</p>
+<p class="cap">皮 656,761 個 cell（含 480,287 個 shell cell）、果肉 341,239、纖維 164,387；E 由 fruit 類別範圍 2e5–8e6 Pa 給定，明寫為假設。切割是連通元件，cell 不刪不搬，碎片天然帶材質。</p>
 
-<h2 id="gf">7. 對 GaussianFluent，誠實版</h2>
-<p>GaussianFluent（CVPR 2026）有程式碼與 22 個資產，但<b>沒有切割實驗</b>：slicing 只在能力清單裡，沒有刀具模型、沒有切割指標，評估是 CLIP score 與使用者研究。它的混合材質只有西瓜一個物件，規則是一句話：按 Gaussian 的顏色指派。所以我們不是在它的 benchmark 上贏它，而是<b>提出它沒有的評估</b>，它的規則是這個評估裡的 baseline。</p>
+<h2>IV. Qualitative Comparison <small>同一顆橘子、同一 solver，只有材質場不同</small></h2>
+<div class="tabs"><button class="on" data-t="cut3">三刀六塊</button><button data-t="fall">一刀後從高處落下</button><button data-t="force">切削力曲線</button><button data-t="drop">整顆落地</button></div>
+<div id="tab-cut3" class="fig"><img src="assets/montage_cut3.gif" alt="cut3"><p class="cap">NMFS · NMFS 材質視圖 · 同質 · 顏色規則。對手的共同缺點是只有一種材質：切到哪裡力曲線都是同一條弧，切下去沒有軟硬之分。材質視圖顯示皮、果肉、纖維各自跟著碎片走。</p></div>
+<div id="tab-fall" class="fig" hidden><img src="assets/montage_fall.gif" alt="fall"><p class="cap">切成兩半後從 1.3 的高度落下：NMFS · 材質視圖 · 同質。</p></div>
+<div id="tab-force" class="fig" hidden><img src="assets/cutforce_profiles.png" alt="force"><p class="cap">四種材質場的切削力曲線形狀（相對 τ：皮 1.0、纖維 0.5、果肉 0.15）。NMFS 與 MRF 有皮的進出雙峰（0.98 / 0.85）與低的果肉平台；同質是弦長的弧；<b>顏色規則在橘子上找不到皮</b>，外皮與果肉同色，曲線幾乎就是同質的弧。這是對場的確定性積分，不依賴模擬。</p></div>
+<div id="tab-drop" class="fig" hidden><img src="assets/drop_compare.png" alt="drop"><p class="cap">整顆不切的落地（FruitNinja lattice）：NMFS 第一次落地皮的最小伸展比 0.973 對同質 0.951，內部 0.979 對 0.958；硬皮讓整顆變形少一半、彈得更快，內部被皮屏蔽。</p></div>
+<div class="note"><b>怎麼讀動畫。</b>差異是定性的。六塊碎片翻滾是混沌的：同樣物理跑兩次（第一、二欄）的碎片姿態就不同，接觸數差四倍。所以動畫不抽數字；定量的是切削力曲線（確定性）與不翻滾的落地。之前報過的碎片接觸數已撤回。</div>
+
+<h2>V. 跟誰比、比什麼 <small>對手的程式碼全部確認可取得</small></h2>
 <table>
-<tr><th>物件</th><th>顏色能不能分開物質</th><th>預期結果</th></tr>
-<tr><td>西瓜</td><td>能：籽黑、瓤紅、皮綠</td><td><span class="warn">平手，主動報告</span></td></tr>
-<tr><td>橘子</td><td>不能：外皮與果肉同為橘色，中柱與白絡同為淡色</td><td><span class="ok">贏</span>，6.1 已量到顏色規則找不到皮</td></tr>
-<tr><td>吐司</td><td>肉桂捲顏色找得到；crust 對 crumb 是紋理差異</td><td>只在 crust / crumb 贏</td></tr>
+<tr><th>軸</th><th>對手</th><th>它們的內部</th><th>指標</th><th>預期</th></tr>
+<tr><td>內部有沒有材質</td><td>FruitNinja、GaussianFluent 填充、3DFusion</td><td>烘焙顏色</td><td>重光照 LPIPS</td><td>換光源即失效</td></tr>
+<tr><td>part 級物理預測</td><td>PhysX-Anything、PhysX-Omni、VoMP、Pixie、NeRF2Physics</td><td>單 part 橘子 = 一種材質</td><td>真實斜切的類別面積比 KL；力曲線形狀</td><td>皮佔比 0 或 100%，曲線是弧</td></tr>
+<tr><td>顏色指派</td><td>GaussianFluent 規則（自動化）+ 其 solver 跑其西瓜</td><td>皮肉同色時失效</td><td>同上</td><td>橘子找不到皮；西瓜平手（主動報告）</td></tr>
+<tr><td>光學估計</td><td>RGB↔X、SuperMat、IntrinsicAnything</td><td>逐像素，無每類約束</td><td>同一面漫射→閃光的重渲染</td><td>濕高光被烘進 albedo</td></tr>
 </table>
-<p>對它的宣稱不是能力，人手挑門檻也能做出異質場；宣稱是<b>自動、從切面照片來、一個程式不調參、而且在顏色與材質不一致處是對的</b>。</p>
+<p class="cap">可守的宣稱只有兩層：part 內的異質性（現有方法沒有一個讓 part 內部變化），以及監督來自內部觀測。不宣稱逐 voxel 材質是新的（VoMP、Pixie 都輸出逐 voxel）、不宣稱絕對模數、不宣稱輸入未標定。細節與每篇的粒度查證見<a href="analysis.html#pos">完整分析</a>。</p>
 
-<h2 id="cmp">7b. 比較集：跟誰比、比什麼</h2>
-<p>四個軸，每個軸一組對手、一個指標、一個預期。對手的程式碼全部查證可取得，不是只重寫規則。</p>
-<table>
-<tr><th>軸</th><th>對手</th><th>在我們的物件上怎麼跑</th><th>指標</th><th>預期</th></tr>
-<tr><td>A. 內部有沒有材質</td><td>FruitNinja、GaussianFluent 內部填充、3DFusion 自己</td><td>它們的資產直接切開渲染</td><td>有無材質通道；重光照 LPIPS（烘焙 RGB 就是它們）</td><td>全是烘焙顏色，換光源就失效</td></tr>
-<tr><td>B. part 級物理預測</td><td>PhysX-Anything（CVPR 2026）、PhysX-Omni、VoMP（ICLR 2026，公開權重）、Pixie、NeRF2Physics</td><td>餵橘子外觀，取它們的材質場，切同一個 45° 斜面</td><td>斜切類別面積比對真實斜切照片的 KL；力曲線形狀；接觸數</td><td>整顆一種材質，皮佔比 0 或 100%，力曲線是弧</td></tr>
-<tr><td>C. 顏色指派</td><td>GaussianFluent 規則（自動化重實作）+ 它的 solver 跑它的西瓜</td><td>橘子用我們的重實作，西瓜用它的原始碼與資產</td><td>同 B</td><td>橘子找不到皮；西瓜平手，主動報告</td></tr>
-<tr><td>D. 光學估計</td><td>RGB↔X（SIGGRAPH 2024）、SuperMat（ICCV 2025）、IntrinsicAnything</td><td>對切面照片逐像素估 SVBRDF，不做每類約束</td><td>同一面漫射→閃光的重渲染 LPIPS / PSNR</td><td>濕高光被烘進 albedo；每類約束贏</td></tr>
-<tr><td>E. 材質分割</td><td>LAB K-means、DINOv2 原始分群、SAM2 自動遮罩、規則式 <code>material_field.py</code></td><td>在人工標注的 held-out 照片上</td><td>mIoU</td><td>—</td></tr>
-</table>
-<p>順序：Pixie 與 VoMP 各一天（有權重，輸入可直接餵資產），PhysX-Anything 一天，GaussianFluent 原始碼跑西瓜一週（配環境），RGB↔X 與 SuperMat 半天但等拍攝。B 軸不是比準確度，是比「表達得了與否」：它們給橘子一種材質，真實斜切照片說有三種。</p>
-
-<h2 id="lim">8. 限制，寫在論文裡的版本</h2>
+<h2>Limitations</h2>
 <ul>
-<li><b>上游品質</b>：材質場繼承生成體積的瑕疵（held-out DreamSim 0.087）。橘子資產極區偏白，被標成纖維組織；底部的缺口成了場裡的洞。這既是限制也是論點：上游生成越好，材質場越對。</li>
-<li><b>假設的模數</b>：E、ν 來自已發表量測的類別範圍，不是網路預測。預測的是「哪種物質在哪裡」，驗證的是由此產生的行為。</li>
-<li><b>圓柱先驗需要一個軸</b>：吐司沒有。</li>
-<li><b>夾雜物一個 cell 厚</b>：籽與膜在 lattice 解析度以下，需要橢球或次 cell 表示。</li>
-<li><b>目前只有橘子</b>：其餘五個物件的 3DFusion 圓柱體要重跑，縱切 prior 30k 步一個物件數小時。</li>
-<li><b>Stage 3 光學未做</b>；<b>荷重元實驗未做</b>：E5 力曲線與 E6 壓縮曲線目前只有預測，沒有真值。</li>
+<li>材質場繼承生成體積的瑕疵（橘子資產極區偏白被標成纖維、底部缺口成為場裡的洞）；上游越好，材質場越對。</li>
+<li>E、ν 來自類別範圍，不是預測；預測的是「哪種物質在哪裡」，力學是示範，沒有實體量測。</li>
+<li>圓柱先驗需要一個軸；夾雜物一個 cell 厚；目前只有橘子，其餘物件的 3DFusion 圓柱體待重跑；光學擬合與新拍攝待做。</li>
 </ul>
 
-<h2 id="next">9. 實驗計畫與時程</h2>
-<table>
-<tr><th></th><th>實驗</th><th>決定什麼</th><th>狀態</th></tr>
-<tr><td>E0</td><td>特徵解析度修正後的分群</td><td>Stage 1 能分出外皮與中柱以外的東西嗎</td><td><span class="ok">完成</span></td></tr>
-<tr><td>E1</td><td>六個物件的材質清單</td><td>資料支持幾種物質</td><td>橘子 K=3 完成，其餘待資產</td></tr>
-<tr><td>E1b</td><td>顏色可分性稽核</td><td>對決能在哪些物件贏</td><td>橘子完成（顏色找不到皮）</td></tr>
-<tr><td>E2</td><td>對人工標注的 mIoU 與消融</td><td>特徵堆疊值不值得</td><td>待標注</td></tr>
-<tr><td>E3</td><td>3D 場一致性、斜切、夾雜物尺寸</td><td>提升品質</td><td><span class="ok">NMFS 完成</span></td></tr>
-<tr><td>E4</td><td>每類 SVBRDF + SSS 擬合、held-out 光照</td><td>證偽者 F3</td><td>待拍攝</td></tr>
-<tr><td>E5</td><td>切削力曲線對實測</td><td><b>證偽者 F2</b></td><td>預測完成，待荷重元</td></tr>
-<tr><td>E6</td><td>壓縮曲線</td><td>彈性合理性</td><td>模擬完成（落地），待荷重元</td></tr>
-<tr><td>E7</td><td>即時切割 demo</td><td>系統宣稱</td><td><span class="ok">完成</span>，labelling 60–190 ms/刀</td></tr>
-<tr><td>E8</td><td>六物件一個程式不調參</td><td>泛化</td><td>待資產</td></tr>
-<tr><td>E9</td><td>對 PhysX-Anything / GaussianFluent 正面對決</td><td>part 級假設失效</td><td>顏色規則完成，GaussianFluent 原始碼待跑</td></tr>
-</table>
-<table>
-<tr><th>月</th><th>工作</th></tr>
-<tr><td>1</td><td>E0、E1、E2；荷重元 rig；標注</td></tr><tr><td>2</td><td>E3 完整六物件、夾雜物橢球</td></tr><tr><td>3</td><td>E4 光學擬合、背光校準</td></tr><tr><td>4</td><td>E5、E6 實測</td></tr><tr><td>5</td><td>E7、E9，含一週跑 GaussianFluent 原始碼</td></tr><tr><td>6</td><td>E8 掃描、消融、寫作；投 SIGGRAPH Asia</td></tr>
-</table>
+<h2 id="bib">BibTeX</h2>
+<pre>@misc{phy_inside2026,
+  title  = {phy\_inside: Heterogeneous Material Fields for Cuttable Generated Solids from Cross-Section Photographs},
+  author = {Gino},
+  year   = {2026},
+  note   = {Project page: https://gino6178.github.io/phy_inside/}
+}</pre>
 
-<h2 id="evidence">9b. 驗證計畫，不用荷重元</h2>
-<p>2026-09-04 決定不做實體力學量測。主張跟著移：力學從「驗證過」變成「示範它改變行為」，量化支柱換成光學與結構。每個主張對應一個指標、一份資料。</p>
-<table>
-<tr><th>主張</th><th>指標</th><th>資料</th><th>狀態</th></tr>
-<tr><td>材質清單來自真實資料且可轉移</td><td>held-out 個體的 Hungarian 一致性</td><td>已有的 3+3 與 held-out 照片</td><td><span class="ok">0.93，完成</span></td></tr>
-<tr><td>3D 場是對的</td><td>真實 45° 斜切的類別面積比對資產斜切的 KL / Wasserstein；囊瓣膜數量與間距（橘子 9–12 片）、籽的尺寸與長寬比（西瓜）</td><td>每物件一張未參與生成與訓練的斜切照片</td><td>待拍</td></tr>
-<tr><td>3D 場是一致的（診斷，只與外部參照並列）</td><td>交線一致性；非信心 cell 與分類器一致</td><td>已有</td><td><span class="ok">0.001 / 0.84，完成</span></td></tr>
-<tr><td>切面可重光照</td><td>同一真實切面：漫射光擬合、閃光燈預測，LPIPS / PSNR 對烘焙 RGB 與均質材質</td><td>每個切面漫射與閃光各一張</td><td>待拍、待 Mitsuba 擬合</td></tr>
-<tr><td>異質性改變行為（示範）</td><td>力曲線形狀（確定性計算）；整顆落地的 squash（不翻滾，多種子）</td><td>已有</td><td>力曲線完成；落地多種子待跑。碎片接觸數已撤回</td></tr>
-<tr><td>對 GaussianFluent</td><td>真實斜切的皮佔比（約 15–20%）對顏色規則的接近 0</td><td>同上斜切照片</td><td>待拍</td></tr>
-</table>
-<div class="callout">兩個不能用的指標：<b>資產斜切渲染對另一顆橘子的照片算 PSNR</b>（不同個體，逐像素本來就對不上）；<b>單獨報告交線一致性或切向 TV</b>（常數場滿分）。</div>
-<p>代價是一個下午的手機拍攝與約兩週的 Mitsuba 3 擬合，後者本來就在計畫裡；省掉的是硬體，不是時間。</p>
-
-<h2 id="use">9c. 可用性：時間、記憶體、格式</h2>
-<p>方法能不能用，看它接進既有管線要付多少。全部在一張 RTX 3090 上量。</p>
-<table>
-<tr><th>步驟</th><th>規模</th><th>時間 / 記憶體</th></tr>
-<tr><td>Stage 1：128 張橫切 + 64 張縱切的 DINOv2 反投影</td><td>6.3M 個 core cell × 99 維</td><td class="num">188 s</td></tr>
-<tr><td>照片分類器（GPU GMM，K=3..6 各兩次）+ 資產標記</td><td>12 張照片、192 張虛擬切片</td><td class="num">150 s（sklearn 版 GMM 單獨就要 15 分鐘以上）</td></tr>
-<tr><td>NMFS 訓練</td><td>2,500 步 × 32k cell × 4 個鄰居</td><td class="num">265 s</td></tr>
-<tr><td>切割：連通元件重標</td><td>877k cell</td><td class="num">61–186 ms / 刀</td></tr>
-<tr><td>MPM 模擬 + 渲染</td><td>877k cell，60 substeps / 幀</td><td class="num">395 ms / 幀（約 2.5 fps）</td></tr>
-<tr><td>3DFusion 資產的 MPM</td><td>1.16M cell</td><td class="num">21 GB GPU</td></tr>
-</table>
-<ul>
-<li><b>格式</b>：材質住在 PLY 的每個 cell 上（<code>mat_label / mat_E / mat_t</code>），既有的 3DGS 載入器按名字讀欄位，不會被多出的屬性影響；切割管線只多讀一個 <code>MATERIAL_LABELS</code>。</li>
-<li><b>不改 solver</b>：<code>dynamic_cut.py</code> 原本就支援每粒子 E、ν、ρ，材質場只是把值填進去；唯一的變更是為了 CFL 把 dt 減半。</li>
-<li><b>一個程式</b>：從照片到可切割資產沒有每物件的旋鈕；K 由 held-out 轉移決定，類別到參數由類別範圍決定。</li>
-<li><b>沒有 3D 標籤、沒有硬體</b>：訓練用的是照片與資產本身，驗證用的是照片。</li>
-</ul>
-
-<h2 id="code">10. 程式與再現</h2>
-<pre>code/
-  feats.py                 DINOv2 stride-4 + LAB + Gabor，每張影像各自白化
-  gmm_gpu.py               GPU 上的 full-covariance GMM（sklearn 版 240k×100 要十幾分鐘，這個幾秒）
-  stage1_photo2asset.py    真實照片學 K，虛擬切片反投影標記資產
-  stage1_backproject.py    資產自身的特徵反投影（2.4 節）
-  stage1_cluster.py        資產自身分群與穩定性
-  stage2_field.py          shell 規則、各向異性 mean-field MRF、t、Cartesian 匯出
-  nmfs.py                  神經材質場：四個損失，無 3D 標籤
-  stage4_cutforce.py       四種場的切削力曲線
-  compare_runs.py          切割 run 的 squash / 接觸數比較與 gif
-  clust.py, viz.py         第 2.3 節的照片分群
-notes/
-  next-paper-plan.md       完整計畫（含每次修正的紀錄）
-  discrete-inclusions.md   離散夾雜物的量測</pre>
-<pre># 橘子，從 3DFusion 資產到材質場（Fruit3D_Fusion repo）
-python material/stage1_photo2asset.py data/orange runs/orange_repro/cyl/state.pt grids/orange.pt runs/orange_repro/material_v2
-python material/stage2_field.py runs/orange_repro/material_v2/cells_photo.npz runs/orange_repro/material/cells.npz runs/orange_repro/cyl/state.pt grids/orange.pt runs/orange_repro/material_v2
-python material/nmfs.py runs/orange_repro/material/cells.npz runs/orange_repro/material_v2/cells_photo.npz runs/orange_repro/nmfs
-python material/stage4_cutforce.py runs/orange_repro/nmfs/nmfs_cells.npz runs/orange_repro/material_v2/field_cells.npz runs/orange_repro/cyl/state.pt grids/orange.pt runs/orange_repro/stage4
-
-# MPM 切割（FruitNinja_clean repo，皮 8e6 Pa 需要 dt 減半）
-DT=1.5e-4 SUBSTEPS=60 CUT_SPEC="18:60:0,55:150:0,95:105:0" MATERIAL=classes CATEGORY=fruit \
-  MATERIAL_LABELS=build_orange/lattice/material_labels_nmfs.pt CELL_LEVEL=build_orange/lattice/cell_level.pt \
-  python report/dynamic_cut.py build_orange/lattice/gs_fill.ply report/mat_runs/nmfs 130 build_orange/lattice/is_interior.pt</pre>
-
-<footer>phy_inside · gino6178 · 2026-09-04。所有數字為當日實際量測；「待」表示尚未執行。</footer>
-</div></body></html>
+<footer>Page layout after the Nerfies / PhysX-Anything project-page convention. 完整分析、計畫與程式：<a href="analysis.html">analysis.html</a> · <a href="https://github.com/gino6178/phy_inside">github.com/gino6178/phy_inside</a></footer>
+</div>
+<script>
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');['cut3','fall','force','drop'].forEach(t=>{document.getElementById('tab-'+t).hidden=(t!==b.dataset.t)})}));
+</script>
+</body></html>
