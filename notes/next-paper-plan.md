@@ -483,3 +483,11 @@ one diffuse and one flash photograph. Stage 3 (Mitsuba fit) is ~2 weeks and was 
 Order: Pixie + VoMP (1 day each, weights available), PhysX-Anything (1 day), GaussianFluent code on
 its watermelon (1 week, env), RGB<->X + SuperMat on the six photographs (half a day; E4 needs the
 diffuse/flash captures). NeRF2Physics and PhysX-Omni as second representatives if time allows.
+
+**Retraction 2026-09-04 (late): fragment contact counts are not evidence.** Two runs with identical
+physics on the 3DFusion asset (RGB vs material-view PLY, same labels) gave 30,199 vs 7,670 mean
+contacts over the last 40 frames and skin squash 0.549 vs 0.759 at frame 90. Six tumbling pieces
+are chaotic, Warp's atomic adds are nondeterministic, and one torch subsample was unseeded (now
+SEED env). The earlier 6,438 vs 16,113 (FruitNinja lattice) is inside this noise. Any behavioural
+metric on cut pieces needs several seeds with mean +/- std, or the non-tumbling intact-drop
+scenario. The cut-force profile (a deterministic integral over the field) is unaffected.

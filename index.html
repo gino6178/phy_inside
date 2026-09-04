@@ -38,8 +38,8 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 </ol>
 
 <h2 id="abs">摘要</h2>
-<p><b>中文。</b>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是一顆橘子對所有現有方法而言都是單一物質。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（三加三張，對六顆沒看過的橘子轉移一致性 0.93），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性幾何先驗與夾雜物 head 學出每個 cell 的物質類別。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線、碎片接觸數為同質場的 40%、落地時內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
-<p><b>English.</b> Generated 3D assets stop at the surface: image-to-3D models emit full PBR materials on the exterior, interior-generation methods fill the volume with colour and nothing else, and physics-aware pipelines assign one material per part, so that to all of them an orange is a single substance. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid. The material inventory is learned on <b>real cut photographs</b> (3+3, transferring to six unseen oranges at 0.93 agreement) and back-projected into the volume as pseudo-labels; a neural material field on the cylindrical lattice (NMFS) is trained with <b>no 3D labels</b> from pseudo-label cross-entropy, cross-family consistency, an anisotropic anatomical prior and an inclusion head. Each substance is bound to mechanical parameters and <b>written into every voxel of the asset</b>, so a planar cut is a topological event on the lattice and every fragment carries its material. On the same orange and the same solver, the heterogeneous field yields the peel entry/exit spikes in the cut-force profile, 40% of the homogeneous field's fragment contacts, and an interior shielded by the shell on impact; colour-based assignment finds no peel on the orange at all, because skin and flesh share a colour.</p>
+<p><b>中文。</b>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是一顆橘子對所有現有方法而言都是單一物質。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（三加三張，對六顆沒看過的橘子轉移一致性 0.93），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性幾何先驗與夾雜物 head 學出每個 cell 的物質類別。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線，落地時整體變形較小、內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
+<p><b>English.</b> Generated 3D assets stop at the surface: image-to-3D models emit full PBR materials on the exterior, interior-generation methods fill the volume with colour and nothing else, and physics-aware pipelines assign one material per part, so that to all of them an orange is a single substance. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid. The material inventory is learned on <b>real cut photographs</b> (3+3, transferring to six unseen oranges at 0.93 agreement) and back-projected into the volume as pseudo-labels; a neural material field on the cylindrical lattice (NMFS) is trained with <b>no 3D labels</b> from pseudo-label cross-entropy, cross-family consistency, an anisotropic anatomical prior and an inclusion head. Each substance is bound to mechanical parameters and <b>written into every voxel of the asset</b>, so a planar cut is a topological event on the lattice and every fragment carries its material. On the same orange and the same solver, the heterogeneous field yields the peel entry/exit spikes in the cut-force profile, and on impact a smaller overall deformation with the interior shielded by the shell; colour-based assignment finds no peel on the orange at all, because skin and flesh share a colour.</p>
 
 <h2 id="pos">1. 定位與缺口</h2>
 <p>逐篇查證最近的方法在材質上的粒度。論文的新穎性主張就落在這張表上。</p>
@@ -129,9 +129,11 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <table>
 <tr><th></th><th>NMFS</th><th>uniform</th><th>顏色規則</th></tr>
 <tr><td>碎片數</td><td class="num">6</td><td class="num">6</td><td class="num">6</td></tr>
-<tr><td>最後 40 幀的平均接觸數</td><td class="num"><span class="ok">6,438</span></td><td class="num">16,113</td><td class="num">12,532</td></tr>
+<tr><td>最後 40 幀的平均接觸數（FruitNinja lattice）</td><td class="num">6,438</td><td class="num">16,113</td><td class="num">12,532</td></tr>
+<tr><td>同上（3DFusion lattice）</td><td class="num">30,199</td><td class="num">19,909</td><td class="num">37,048</td></tr>
 </table>
-<p>硬皮讓碎片不會攤開、互相壓疊，接觸數差 2.5 倍。工程上的一個發現：fruit 類別範圍把皮映到 8e6 Pa，在預設 dt=3e-4 的 CFL 餘裕只有 1.29 倍，Warp 報 illegal memory access；dt 減半到 1.5e-4（餘裕 2.6 倍）三次全跑完、零錯誤。</p>
+<div class="callout"><b>接觸數不是證據，撤回。</b>在 3DFusion 資產上跑了兩次<b>物理完全相同</b>的 NMFS（只有 PLY 的顏色欄位不同，一次原色、一次材質視圖）：最後 40 幀的接觸數 30,199 對 7,670，第 90 幀皮的 squash 0.549 對 0.759。六塊碎片翻滾是混沌的，Warp 的原子加法本身不確定，加上一處未固定種子的取樣，任何單次 run 的接觸數或碎片 squash 差異都在 run 對 run 的雜訊裡。前一版報告的「6,438 對 16,113」也在這個雜訊裡，不能當結論。要用這類指標必須多個種子取平均與標準差，或改用不翻滾的場景（整顆落地）。</div>
+<p>工程上的一個發現：fruit 類別範圍把皮映到 8e6 Pa，在預設 dt=3e-4 的 CFL 餘裕只有 1.29 倍，Warp 報 illegal memory access；dt 減半到 1.5e-4（餘裕 2.6 倍）後所有 run 零錯誤。</p>
 <figure><img src="assets/squash_compare.png" alt="squash after cuts"><figcaption>切開後每塊碎片皮與內部沿重力的 squash。三種場趨勢相同且皆大於 1：切成六塊後碎片翻滾，這個量被剛體旋轉主導，<b>不能當證據</b>。</figcaption></figure>
 <h3>6.3 整顆不切的落地</h3>
 <div class="grid2">
@@ -218,7 +220,7 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <tr><td>3D 場是對的</td><td>真實 45° 斜切的類別面積比對資產斜切的 KL / Wasserstein；囊瓣膜數量與間距（橘子 9–12 片）、籽的尺寸與長寬比（西瓜）</td><td>每物件一張未參與生成與訓練的斜切照片</td><td>待拍</td></tr>
 <tr><td>3D 場是一致的（診斷，只與外部參照並列）</td><td>交線一致性；非信心 cell 與分類器一致</td><td>已有</td><td><span class="ok">0.001 / 0.84，完成</span></td></tr>
 <tr><td>切面可重光照</td><td>同一真實切面：漫射光擬合、閃光燈預測，LPIPS / PSNR 對烘焙 RGB 與均質材質</td><td>每個切面漫射與閃光各一張</td><td>待拍、待 Mitsuba 擬合</td></tr>
-<tr><td>異質性改變行為（示範）</td><td>力曲線形狀、碎片接觸數、落地屏蔽</td><td>已有</td><td><span class="ok">完成</span>，3DFusion 資產版執行中</td></tr>
+<tr><td>異質性改變行為（示範）</td><td>力曲線形狀（確定性計算）；整顆落地的 squash（不翻滾，多種子）</td><td>已有</td><td>力曲線完成；落地多種子待跑。碎片接觸數已撤回</td></tr>
 <tr><td>對 GaussianFluent</td><td>真實斜切的皮佔比（約 15–20%）對顏色規則的接近 0</td><td>同上斜切照片</td><td>待拍</td></tr>
 </table>
 <div class="callout">兩個不能用的指標：<b>資產斜切渲染對另一顆橘子的照片算 PSNR</b>（不同個體，逐像素本來就對不上）；<b>單獨報告交線一致性或切向 TV</b>（常數場滿分）。</div>
