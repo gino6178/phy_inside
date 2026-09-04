@@ -34,8 +34,12 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <p class="lead">生成的 3D 資產只有表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法把體積填成顏色而已，物理感知的管線則每個 part 一組均勻參數。對所有現有方法而言，<b>一顆橘子是一個 part、一種物質</b>。本專案把一個由少量切面照片合成的內部體積，分解成一個異質、可模擬的材質場：皮、果肉、纖維組織各有各的力學，切開的面可重光照，刀鋒切過時的阻力隨材質變化。</p>
 
 <ol class="toc">
-<li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#code">程式與再現</a></li>
+<li><a href="#abs">摘要</a></li><li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#asset">材質場寫進資產</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#code">程式與再現</a></li>
 </ol>
+
+<h2 id="abs">摘要</h2>
+<p><b>中文。</b>生成的 3D 資產止於表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法只把體積填成顏色，物理感知的管線則給每個 part 一組均勻參數，於是一顆橘子對所有現有方法而言都是單一物質。我們把一個由少量切面照片合成的內部體積，變成異質、可模擬的實心體。材質清單在<b>真實切面照片</b>上學到（三加三張，對六顆沒看過的橘子轉移一致性 0.93），經虛擬切片反投影成偽標籤；一個定義在圓柱格上的神經材質場（NMFS）在<b>沒有任何 3D 標籤</b>的情況下，以偽標籤交叉熵、兩族切面一致性、各向異性幾何先驗與夾雜物 head 學出每個 cell 的物質類別。每種物質綁定力學參數並<b>寫回資產的每個 voxel</b>，切割是格上的拓撲事件，碎片各自帶著材質。在同一顆橘子、同一 solver 上，異質場產生皮的進出雙峰切削力曲線、碎片接觸數為同質場的 40%、落地時內部被皮屏蔽；按顏色指派材質的規則在橘子上找不到皮，因為外皮與果肉同色。</p>
+<p><b>English.</b> Generated 3D assets stop at the surface: image-to-3D models emit full PBR materials on the exterior, interior-generation methods fill the volume with colour and nothing else, and physics-aware pipelines assign one material per part, so that to all of them an orange is a single substance. We turn a volumetric interior synthesised from a few cross-section photographs into a heterogeneous, simulation-ready solid. The material inventory is learned on <b>real cut photographs</b> (3+3, transferring to six unseen oranges at 0.93 agreement) and back-projected into the volume as pseudo-labels; a neural material field on the cylindrical lattice (NMFS) is trained with <b>no 3D labels</b> from pseudo-label cross-entropy, cross-family consistency, an anisotropic anatomical prior and an inclusion head. Each substance is bound to mechanical parameters and <b>written into every voxel of the asset</b>, so a planar cut is a topological event on the lattice and every fragment carries its material. On the same orange and the same solver, the heterogeneous field yields the peel entry/exit spikes in the cut-force profile, 40% of the homogeneous field's fragment contacts, and an interior shielded by the shell on impact; colour-based assignment finds no peel on the orange at all, because skin and flesh share a colour.</p>
 
 <h2 id="pos">1. 定位與缺口</h2>
 <p>逐篇查證最近的方法在材質上的粒度。論文的新穎性主張就落在這張表上。</p>
@@ -143,6 +147,16 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <tr><td>內部 / 皮（落地時）</td><td class="num">1.036</td><td class="num">1.008</td></tr>
 </table>
 <p>硬皮讓整顆變形少一半、彈得更快，內部被皮屏蔽。效果是百分之幾，因為落地很輕、皮只有一到三個 cell 厚；這是 E6 的模擬版本，荷重元的壓縮曲線才給它真實的數字。</p>
+
+<h2 id="asset">6b. 材質場寫進資產的每個 voxel</h2>
+<p>切割時碎片要帶著材質，材質就得住在 cell 上，不能只是外面的一張表。<code>code/attach_material.py</code> 把 NMFS 的場寫回 3DFusion 的 lattice 資產（<code>trained/orange.ply</code> 經 <code>writeback.py</code> 寫入 3DFusion 內部顏色後，1,162,387 個 cell）：</p>
+<table>
+<tr><th>檔案</th><th>內容</th><th>用途</th></tr>
+<tr><td><code>orange_phy.ply</code></td><td>原資產加三個每 cell 屬性：<code>mat_label</code>（0 纖維、1 果肉、2 皮）、<code>mat_E</code>（Pa）、<code>mat_t</code>（類內連續調變）</td><td>任何按名字讀欄位的載入器都能直接用；現有 3DGS 載入器讀 x/y/z/f_dc/opacity 等欄位，多出的屬性不影響</td></tr>
+<tr><td><code>orange_phy_material.pt</code></td><td>同一場的張量：labels、E、t，與 PLY 同順序</td><td>切割管線讀 labels（<code>MATERIAL_LABELS</code>），每個 cell 進 solver 時帶自己的 E、ν、ρ</td></tr>
+<tr><td><code>orange_phy_matview.ply</code></td><td>同幾何、f_dc 換成類別顏色</td><td>「材質視圖」：同一個物理過程，用材質上色渲染</td></tr>
+</table>
+<p>皮 656,761 個 cell（含 cell_level 為 1 的 480,287 個 shell cell）、果肉 341,239、纖維組織 164,387；E 由類別範圍給定（fruit：2e5 到 8e6 Pa）。切割是連通元件，cell 不會被刪除或搬家，所以碎片天然帶著自己的材質。</p>
 
 <h2 id="gf">7. 對 GaussianFluent，誠實版</h2>
 <p>GaussianFluent（CVPR 2026）有程式碼與 22 個資產，但<b>沒有切割實驗</b>：slicing 只在能力清單裡，沒有刀具模型、沒有切割指標，評估是 CLIP score 與使用者研究。它的混合材質只有西瓜一個物件，規則是一句話：按 Gaussian 的顏色指派。所以我們不是在它的 benchmark 上贏它，而是<b>提出它沒有的評估</b>，它的規則是這個評估裡的 baseline。</p>
