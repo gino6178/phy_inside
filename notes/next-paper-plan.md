@@ -442,3 +442,30 @@ thick; this is the simulated analogue of E6, and the load-cell compression test 
 real number to match. Sign convention to state in the paper: under floor impact the shell takes the
 contact, so interior/skin > 1 for a hard-shell object; the earlier comment in dynamic_cut.py assumed the
 opposite loading.
+
+## 12. Decision 2026-09-04: no load cell. Evidence moves to optics and structure.
+
+The user dropped the physical force / compression measurements. Consequences, so the claims stay
+inside what is measured:
+
+- **E5 / E6 are demonstrations, not validation.** Cut-force profile shape, fragment contact count
+  (16,113 -> 6,438), and the drop test show that heterogeneity changes macroscopic behaviour. The
+  paper says "physically plausible, simulation-ready", never "mechanically validated".
+- **E4 becomes the primary quantitative claim**, in its valid form only: the SAME real cut face
+  photographed under diffuse light and under flash; per-class SVBRDF + SSS fitted on the diffuse
+  photo, the flash photo predicted; LPIPS / PSNR against baked RGB and a homogeneous material.
+  Pixel-wise comparison of an asset render against a photograph of a *different* orange is NOT a
+  valid metric (different individual) and is not used; distribution-level DreamSim stays upstream's.
+- **New E2b, structural statistics on an unsupervised real oblique cut.** One 45-degree cut
+  photograph per object, never used in generation or in NMFS. 2D classifier -> class area
+  fractions; asset oblique slice -> cell class fractions; KL / Wasserstein between them. Plus
+  morphology: membrane count and spacing for the orange (9-12 segments), seed size / aspect for the
+  watermelon. **This also arbitrates the GaussianFluent comparison without force data**: the real
+  oblique photo has ~15-20% peel, the colour rule assigns ~0% peel on the orange, NMFS is near the
+  photo.
+- **Cross-family consistency and anisotropic TV are diagnostics**, reported only next to an
+  external reference (agreement with the held-out-verified classifier on non-confident cells,
+  0.84). A constant field scores perfectly on them alone.
+
+Capture needed (one afternoon, phone only): per object one oblique cut photograph; per cut face
+one diffuse and one flash photograph. Stage 3 (Mitsuba fit) is ~2 weeks and was already planned.

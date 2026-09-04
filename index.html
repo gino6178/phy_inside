@@ -34,7 +34,7 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <p class="lead">生成的 3D 資產只有表面：image-to-3D 模型在外表面輸出完整 PBR 材質，內部生成方法把體積填成顏色而已，物理感知的管線則每個 part 一組均勻參數。對所有現有方法而言，<b>一顆橘子是一個 part、一種物質</b>。本專案把一個由少量切面照片合成的內部體積，分解成一個異質、可模擬的材質場：皮、果肉、纖維組織各有各的力學，切開的面可重光照，刀鋒切過時的阻力隨材質變化。</p>
 
 <ol class="toc">
-<li><a href="#abs">摘要</a></li><li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#asset">材質場寫進資產</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#code">程式與再現</a></li>
+<li><a href="#abs">摘要</a></li><li><a href="#pos">定位與缺口</a></li><li><a href="#pre">動手前量到的四件事</a></li><li><a href="#pipe">管線</a></li><li><a href="#s1">Stage 1：真實照片學材質，投到資產</a></li><li><a href="#s2">Stage 2：NMFS 神經材質場</a></li><li><a href="#s4">Stage 4：切削力、切割、落地</a></li><li><a href="#asset">材質場寫進資產</a></li><li><a href="#gf">對 GaussianFluent</a></li><li><a href="#lim">限制</a></li><li><a href="#next">實驗計畫與時程</a></li><li><a href="#evidence">驗證計畫（無荷重元）</a></li><li><a href="#code">程式與再現</a></li>
 </ol>
 
 <h2 id="abs">摘要</h2>
@@ -197,6 +197,20 @@ footer{margin-top:60px;color:var(--muted);font-size:13.5px;border-top:1px solid 
 <tr><th>月</th><th>工作</th></tr>
 <tr><td>1</td><td>E0、E1、E2；荷重元 rig；標注</td></tr><tr><td>2</td><td>E3 完整六物件、夾雜物橢球</td></tr><tr><td>3</td><td>E4 光學擬合、背光校準</td></tr><tr><td>4</td><td>E5、E6 實測</td></tr><tr><td>5</td><td>E7、E9，含一週跑 GaussianFluent 原始碼</td></tr><tr><td>6</td><td>E8 掃描、消融、寫作；投 SIGGRAPH Asia</td></tr>
 </table>
+
+<h2 id="evidence">9b. 驗證計畫，不用荷重元</h2>
+<p>2026-09-04 決定不做實體力學量測。主張跟著移：力學從「驗證過」變成「示範它改變行為」，量化支柱換成光學與結構。每個主張對應一個指標、一份資料。</p>
+<table>
+<tr><th>主張</th><th>指標</th><th>資料</th><th>狀態</th></tr>
+<tr><td>材質清單來自真實資料且可轉移</td><td>held-out 個體的 Hungarian 一致性</td><td>已有的 3+3 與 held-out 照片</td><td><span class="ok">0.93，完成</span></td></tr>
+<tr><td>3D 場是對的</td><td>真實 45° 斜切的類別面積比對資產斜切的 KL / Wasserstein；囊瓣膜數量與間距（橘子 9–12 片）、籽的尺寸與長寬比（西瓜）</td><td>每物件一張未參與生成與訓練的斜切照片</td><td>待拍</td></tr>
+<tr><td>3D 場是一致的（診斷，只與外部參照並列）</td><td>交線一致性；非信心 cell 與分類器一致</td><td>已有</td><td><span class="ok">0.001 / 0.84，完成</span></td></tr>
+<tr><td>切面可重光照</td><td>同一真實切面：漫射光擬合、閃光燈預測，LPIPS / PSNR 對烘焙 RGB 與均質材質</td><td>每個切面漫射與閃光各一張</td><td>待拍、待 Mitsuba 擬合</td></tr>
+<tr><td>異質性改變行為（示範）</td><td>力曲線形狀、碎片接觸數、落地屏蔽</td><td>已有</td><td><span class="ok">完成</span>，3DFusion 資產版執行中</td></tr>
+<tr><td>對 GaussianFluent</td><td>真實斜切的皮佔比（約 15–20%）對顏色規則的接近 0</td><td>同上斜切照片</td><td>待拍</td></tr>
+</table>
+<div class="callout">兩個不能用的指標：<b>資產斜切渲染對另一顆橘子的照片算 PSNR</b>（不同個體，逐像素本來就對不上）；<b>單獨報告交線一致性或切向 TV</b>（常數場滿分）。</div>
+<p>代價是一個下午的手機拍攝與約兩週的 Mitsuba 3 擬合，後者本來就在計畫裡；省掉的是硬體，不是時間。</p>
 
 <h2 id="code">10. 程式與再現</h2>
 <pre>code/
