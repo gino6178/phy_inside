@@ -105,8 +105,9 @@ a{color:var(--blue)}
 <tr><td><b>GMM + MRF</b>（W_T 0.5 / 1.5 / 3.0 幾乎不變）</td><td class="n"><span class="ok">0.931</span></td><td class="n">0.913</td><td class="n">0.685</td><td class="n">0.079</td><td class="n">0.035 / 0.044</td></tr>
 <tr><td>NMFS（兩族偽標籤）</td><td class="n">0.922</td><td class="n"><span class="ok">0.916</span></td><td class="n">0.839</td><td class="n">0.123</td><td class="n">0.052 / 0.069</td></tr>
 <tr><td>NMFS，只用橫切偽標籤 → 對縱切族</td><td class="n">—</td><td class="n">0.831（MRF 同條件 <b>0.911</b>，偽標籤來源 0.829）</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+<tr><td>NMFS，只用縱切偽標籤 → 對橫切族</td><td class="n">0.825（MRF 同條件 <b>0.930</b>，偽標籤來源 0.823）</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
 </table>
-<p class="cap">三個結論。(1) <b>場不只是半徑</b>：radial-only 在兩族上各少 10 到 15 個百分點，材質場帶有半徑以外的結構（膜、中柱的形狀）。(2) <b>GMM+MRF 對兩族的一致與分類器持平，且對平滑強度不敏感</b>。(3) <b>NMFS 沒有贏</b>：在 held-out-family 測試裡它幾乎等於複製偽標籤來源（0.831 對 0.829），MRF 反而泛化到另一族（0.911）；97% 的 cell 是高信心，NMFS 只在 3% 上插值。因此主文的方法是 GMM+MRF，NMFS 降為補充材料的一個嘗試，它保留膜（0.123）的那一點來自夾雜物 head，可以單獨接在 MRF 後面。</p>
+<p class="cap">三個結論。(1) <b>場不只是半徑</b>：radial-only 在兩族上各少 10 到 15 個百分點，材質場帶有半徑以外的結構（膜、中柱的形狀）。(2) <b>GMM+MRF 對兩族的一致與分類器持平，且對平滑強度不敏感</b>。(3) <b>NMFS 沒有贏</b>：在兩個方向的 held-out-family 測試裡它都幾乎等於複製偽標籤來源（0.831 對 0.829、0.825 對 0.823），MRF 反而泛化到另一族（0.911、0.930）；97% 的 cell 是高信心，NMFS 只在 3% 上插值。因此主文的方法是 GMM+MRF，NMFS 降為補充材料的一個嘗試，它保留膜（0.123）的那一點來自夾雜物 head，可以單獨接在 MRF 後面。</p>
 <h2>III. 材質寫進每個 voxel <small>切割時碎片帶著材質</small></h2>
 <div class="fig"><img src="assets/stage2_field.png" alt="field"><p class="cap">材質場的三個切面：後驗 argmax → MRF 與 shell 規則 → 果肉內的連續調變 t（近中柱低、近皮高）。</p></div>
 <table>
